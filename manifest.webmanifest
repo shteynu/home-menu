@@ -1,0 +1,19 @@
+{
+  "name": "Домашнее меню",
+  "short_name": "Меню",
+  "description": "Семейный планировщик домашней еды на неделю.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#f4f6f5",
+  "lang": "ru",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

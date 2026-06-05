@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f6f5" />
+    <title>Домашнее меню</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css?v=4" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Семейный планировщик еды</p>
+          <h1>Домашнее меню</h1>
+        </div>
+        <button class="icon-button" id="resetDemoButton" type="button" aria-label="Вернуть демо-данные" title="Вернуть демо-данные">
+          <span aria-hidden="true">↺</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="view is-active" id="view-week" aria-labelledby="weekTitle">
+          <div class="week-toolbar">
+            <button class="icon-button" id="previousWeekButton" type="button" aria-label="Предыдущая неделя" title="Предыдущая неделя">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <div>
+              <h2 id="weekTitle">Эта неделя</h2>
+              <p id="weekRange">Воскресенье - суббота</p>
+            </div>
+            <button class="icon-button" id="nextWeekButton" type="button" aria-label="Следующая неделя" title="Следующая неделя">
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+
+          <div class="insight-strip" id="weekInsights"></div>
+          <div class="week-grid" id="weekGrid"></div>
+        </section>
+
+        <section class="view" id="view-dishes" aria-labelledby="dishesTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Банк домашних блюд</p>
+              <h2 id="dishesTitle">Блюда</h2>
+            </div>
+            <div class="button-group">
+              <button class="secondary-button" id="openImportButton" type="button">Импорт</button>
+              <button class="primary-button" id="openDishFormButton" type="button">
+                <span aria-hidden="true">＋</span>
+                Блюдо
+              </button>
+            </div>
+          </div>
+
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="dishSearch" type="search" placeholder="Поиск по названию, тегу или ингредиенту" autocomplete="off" />
+          </label>
+
+          <div class="chips" id="dishFilters"></div>
+          <div class="dish-list" id="dishList"></div>
+        </section>
+
+        <section class="view" id="view-wishes" aria-labelledby="wishesTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Что хочется семье</p>
+              <h2 id="wishesTitle">Желания</h2>
+            </div>
+            <button class="secondary-button" id="autoPlanButton" type="button">Заполнить неделю</button>
+          </div>
+
+          <div id="familyPanel"></div>
+          <div class="wish-board" id="wishBoard"></div>
+        </section>
+
+        <section class="view" id="view-shopping" aria-labelledby="shoppingTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Из меню недели</p>
+              <h2 id="shoppingTitle">Покупки</h2>
+            </div>
+            <button class="secondary-button" id="copyShoppingButton" type="button">Скопировать</button>
+          </div>
+
+          <div id="pantryPanel"></div>
+          <div id="backupPanel"></div>
+          <div class="shopping-summary" id="shoppingSummary"></div>
+          <div class="shopping-list" id="shoppingList"></div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Основная навигация">
+        <button class="nav-item is-active" type="button" data-view="week">
+          <span aria-hidden="true">▦</span>
+          Неделя
+        </button>
+        <button class="nav-item" type="button" data-view="dishes">
+          <span aria-hidden="true">□</span>
+          Блюда
+        </button>
+        <button class="nav-item" type="button" data-view="wishes">
+          <span aria-hidden="true">☆</span>
+          Желания
+        </button>
+        <button class="nav-item" type="button" data-view="shopping">
+          <span aria-hidden="true">✓</span>
+          Покупки
+        </button>
+      </nav>
+    </div>
+
+    <dialog class="sheet" id="dishDialog">
+      <form method="dialog" id="dishForm">
+        <div class="sheet-header">
+          <div>
+            <p class="eyebrow">Новая карточка</p>
+            <h2 id="dishDialogTitle">Добавить блюдо</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" aria-label="Закрыть" title="Закрыть">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <input type="hidden" id="dishId" />
+
+        <label class="field">
+          Название
+          <input id="dishName" type="text" required placeholder="Например: куриный суп" />
+        </label>
+
+        <label class="field">
+          Категория
+          <select id="dishCategory">
+            <option value="Основное">Основное</option>
+            <option value="Завтрак">Завтрак</option>
+            <option value="Суп">Суп</option>
+            <option value="Салат">Салат</option>
+            <option value="Гарнир">Гарнир</option>
+            <option value="Перекус">Перекус</option>
+            <option value="Десерт">Десерт</option>
+          </select>
+        </label>
+
+        <label class="field">
+          Теги через запятую
+          <input id="dishTags" type="text" placeholder="быстро, дети любят, мясное" />
+        </label>
+
+        <label class="field">
+          Ингредиенты через запятую
+          <textarea id="dishIngredients" rows="3" placeholder="курица, морковь, картофель"></textarea>
+        </label>
+
+        <label class="field">
+          Заметка
+          <textarea id="dishNote" rows="2" placeholder="Например: удобно готовить на два дня"></textarea>
+        </label>
+
+        <button class="primary-button full-width" type="submit">Сохранить</button>
+      </form>
+    </dialog>
+
+    <dialog class="sheet" id="importDialog">
+      <form method="dialog" id="importForm">
+        <div class="sheet-header">
+          <div>
+            <p class="eyebrow">Быстрое наполнение</p>
+            <h2>Импорт блюд</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" aria-label="Закрыть" title="Закрыть">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <label class="field">
+          Текст из фото или списка
+          <textarea id="importText" rows="6" placeholder="суп&#10;котлеты&#10;блины"></textarea>
+        </label>
+
+        <div class="ocr-panel">
+          <label class="field">
+            Фото списка
+            <input id="ocrFileInput" type="file" accept="image/*" multiple />
+          </label>
+
+          <label class="field">
+            Языки OCR
+            <select id="ocrLanguage">
+              <option value="rus+heb+eng">Русский + иврит + английский</option>
+              <option value="rus+eng">Русский + английский</option>
+              <option value="heb+eng">Иврит + английский</option>
+              <option value="eng">Английский</option>
+            </select>
+          </label>
+
+          <button class="secondary-button full-width" id="runOcrButton" type="button">Распознать фото</button>
+          <div class="ocr-status" id="ocrStatus">Фото распознается локально в браузере. После OCR проверьте текст вручную.</div>
+        </div>
+
+        <label class="field">
+          Категория для новых блюд
+          <select id="importCategory">
+            <option value="Основное">Основное</option>
+            <option value="Завтрак">Завтрак</option>
+            <option value="Суп">Суп</option>
+            <option value="Салат">Салат</option>
+            <option value="Гарнир">Гарнир</option>
+            <option value="Перекус">Перекус</option>
+            <option value="Десерт">Десерт</option>
+          </select>
+        </label>
+
+        <button class="secondary-button full-width" id="parseImportButton" type="button">Разобрать</button>
+        <div class="import-list" id="importCandidates"></div>
+        <button class="primary-button full-width" type="submit">Добавить выбранные</button>
+      </form>
+    </dialog>
+
+    <dialog class="sheet" id="slotDialog">
+      <form method="dialog" id="slotForm">
+        <div class="sheet-header">
+          <div>
+            <p class="eyebrow" id="slotDialogContext">Выбор блюда</p>
+            <h2>Что поставить?</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" aria-label="Закрыть" title="Закрыть">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <label class="search-box">
+          <span aria-hidden="true">⌕</span>
+          <input id="slotSearch" type="search" placeholder="Найти блюдо" autocomplete="off" />
+        </label>
+
+        <div class="quick-picks" id="quickPicks"></div>
+        <div class="slot-dish-list" id="slotDishList"></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js?v=4" type="module"></script>
+  </body>
+</html>
