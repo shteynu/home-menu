@@ -18,10 +18,13 @@ http://localhost:4173
 
 Код сохранен в GitHub: `https://github.com/shteynu/home-menu`.
 
-GitHub Pages для приватного репозитория недоступен на текущем GitHub-тарифе, поэтому workflow оставлен ручным. Бесплатные варианты:
+Рабочая версия опубликована на GitHub Pages:
 
-1. Vercel: импортировать репозиторий `shteynu/home-menu`, Framework Preset оставить `Other`, Build Command оставить пустым, Output Directory оставить пустым.
-2. GitHub Pages: сделать репозиторий публичным или перейти на тариф GitHub, который поддерживает Pages для private repos, затем запустить workflow вручную.
+```text
+https://shteynu.github.io/home-menu/
+```
+
+Репозиторий публичный, поэтому GitHub Pages работает бесплатно. Каждый push в `main` автоматически публикует новую версию.
 
 ## Что уже есть
 
