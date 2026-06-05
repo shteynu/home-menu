@@ -14,6 +14,15 @@ python3 -m http.server 4173
 http://localhost:4173
 ```
 
+## Публикация
+
+Код сохранен в GitHub: `https://github.com/shteynu/home-menu`.
+
+GitHub Pages для приватного репозитория недоступен на текущем GitHub-тарифе, поэтому workflow оставлен ручным. Бесплатные варианты:
+
+1. Vercel: импортировать репозиторий `shteynu/home-menu`, Framework Preset оставить `Other`, Build Command оставить пустым, Output Directory оставить пустым.
+2. GitHub Pages: сделать репозиторий публичным или перейти на тариф GitHub, который поддерживает Pages для private repos, затем запустить workflow вручную.
+
 ## Что уже есть
 
 - Меню недели с началом недели в воскресенье.
