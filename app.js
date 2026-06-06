@@ -2515,8 +2515,14 @@ function normalizeState(nextState) {
     : "member-family";
   nextState.pantry = Array.isArray(nextState.pantry) ? nextState.pantry : [];
   nextState.importText = nextState.importText || "";
-  nextState.dishes = nextState.dishes.map(normalizeDish);
+  nextState.dishes = mergeDefaultDishes(nextState.dishes.map(normalizeDish));
   return nextState;
+}
+
+function mergeDefaultDishes(dishes) {
+  const existingIds = new Set(dishes.map((dish) => dish.id));
+  const missingDefaults = defaultState.dishes.filter((dish) => !existingIds.has(dish.id)).map((dish) => normalizeDish(structuredClone(dish)));
+  return [...dishes, ...missingDefaults];
 }
 
 function normalizeSyncSettings(sync = {}) {
