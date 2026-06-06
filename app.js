@@ -4,9 +4,12 @@ const FILTER_ALL = "Все";
 const FILTER_WISHES = "Желания";
 const FILTER_MEMBER_WANTS = "__member_wants__";
 const FILTER_LONG_AGO = "Давно не ели";
+const FILTER_FAVORITES = "__favorites__";
 
 const SUPPORTED_LANGUAGES = ["ru", "he"];
 const SUPABASE_MODULE_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const STATE_SCHEMA_VERSION = 5;
+const UNKNOWN_UPDATED_AT = "1970-01-01T00:00:00.000Z";
 
 const translations = {
   ru: {
@@ -47,6 +50,8 @@ const translations = {
       chooseDish: "Выбрать блюдо",
       clear: "Очистить",
       autoPick: "Подобрать",
+      minutes: "{count} мин",
+      servings: "{count} порц.",
     },
     dishes: {
       eyebrow: "Банк домашних блюд",
@@ -65,12 +70,16 @@ const translations = {
       selected: "Выбрано",
       want: "Хочу",
       edit: "Править",
+      favorite: "Любимое",
+      season: "Сезон: {season}",
+      prep: "{minutes} мин · {servings} порц.",
     },
     filters: {
       all: "Все",
       wishes: "Желания",
       memberWants: "{name} хочет",
       longAgo: "Давно не ели",
+      favorites: "Любимые",
       quickFast: "Быстро",
       quickKids: "Дети любят",
     },
@@ -91,6 +100,13 @@ const translations = {
       pantryTitle: "Запасы дома",
       pantryPlaceholder: "молоко, рис, яйца",
       emptyPantry: "Список пуст",
+      manualEyebrow: "Добавить к покупкам",
+      manualTitle: "Ручные покупки",
+      manualPlaceholder: "хлеб, фрукты, салфетки",
+      manualSource: "Добавлено вручную",
+      clearDone: "Снять отметки",
+      hideDone: "Скрыть купленное",
+      showDone: "Показать купленное",
     },
     backup: {
       eyebrow: "Перенос между телефонами",
@@ -112,20 +128,35 @@ const translations = {
       anonKeyPlaceholder: "sb_publishable_...",
       email: "Семейный email",
       emailPlaceholder: "family@example.com",
+      displayName: "Ваше имя в семье",
+      displayNamePlaceholder: "Мама, папа, бабушка...",
+      familyName: "Название семьи",
+      familyNamePlaceholder: "Наша семья",
+      joinCode: "Код приглашения",
+      joinCodePlaceholder: "ABC123",
       saveSettings: "Сохранить настройки",
       sendLink: "Отправить ссылку входа",
+      createFamily: "Создать семью",
+      joinFamily: "Присоединиться",
       push: "Сохранить в облако",
       pull: "Загрузить из облака",
       signOut: "Выйти",
-      help: "Один семейный email можно открыть на нескольких телефонах. Данные защищаются Supabase Auth и RLS.",
+      help: "Каждый взрослый входит своим email. Семья соединяется кодом приглашения; данные защищаются Supabase Auth и RLS.",
+      familyConnected: "Семья: {name}",
+      inviteCode: "Код семьи: {code}",
       lastSync: "Последняя синхронизация: {time}",
       neverSynced: "Еще не синхронизировано",
       setupMissing: "Заполните Supabase URL, anon key и email.",
+      familyMissing: "Создайте семью или присоединитесь по коду.",
+      familyCreated: "Семья создана",
+      familyJoined: "Вы присоединились к семье",
+      joinMissing: "Введите код приглашения",
       settingsSaved: "Настройки синхронизации сохранены",
       linkSent: "Ссылка входа отправлена на email",
       loginRequired: "Сначала войдите по email",
       cloudSaved: "Сохранено в облако",
       cloudLoaded: "Загружено из облака",
+      cloudMerged: "Изменения объединены",
       noCloudData: "В облаке пока нет данных",
       signedOut: "Вы вышли из облака",
       failed: "Синхронизация не сработала",
@@ -141,6 +172,11 @@ const translations = {
       avoids: "Нельзя / не любит",
       avoidsPlaceholder: "рыба, молочное, острое",
       savePrefs: "Сохранить предпочтения",
+      role: "Роль",
+      roleParent: "Родитель",
+      roleChild: "Ребенок",
+      roleAdult: "Взрослый",
+      roleGuest: "Гость",
     },
     profile: {
       family: "Семья",
@@ -161,6 +197,17 @@ const translations = {
       ingredientsPlaceholder: "курица, морковь, картофель",
       note: "Заметка",
       notePlaceholder: "Например: удобно готовить на два дня",
+      photo: "Фото блюда",
+      photoHelp: "Фото сохраняется локально в сжатом виде.",
+      servings: "Порции",
+      prepMinutes: "Время готовки, мин",
+      season: "Сезон",
+      favorite: "Любимое блюдо",
+      seasonAny: "Всегда",
+      seasonSummer: "Лето",
+      seasonWinter: "Зима",
+      seasonWeekend: "Выходные",
+      seasonHoliday: "Праздник",
     },
     import: {
       eyebrow: "Быстрое наполнение",
@@ -289,6 +336,8 @@ const translations = {
       chooseDish: "בחירת מנה",
       clear: "ניקוי",
       autoPick: "בחירה אוטומטית",
+      minutes: "{count} דק׳",
+      servings: "{count} מנות",
     },
     dishes: {
       eyebrow: "מאגר מנות ביתיות",
@@ -307,12 +356,16 @@ const translations = {
       selected: "נבחר",
       want: "רוצה",
       edit: "עריכה",
+      favorite: "אהוב",
+      season: "עונה: {season}",
+      prep: "{minutes} דק׳ · {servings} מנות",
     },
     filters: {
       all: "הכל",
       wishes: "רצונות",
       memberWants: "רצונות של {name}",
       longAgo: "לא אכלנו מזמן",
+      favorites: "אהובות",
       quickFast: "מהיר",
       quickKids: "ילדים אוהבים",
     },
@@ -333,6 +386,13 @@ const translations = {
       pantryTitle: "מלאי בבית",
       pantryPlaceholder: "חלב, אורז, ביצים",
       emptyPantry: "הרשימה ריקה",
+      manualEyebrow: "להוסיף לקניות",
+      manualTitle: "קניות ידניות",
+      manualPlaceholder: "לחם, פירות, מפיות",
+      manualSource: "נוסף ידנית",
+      clearDone: "ניקוי סימונים",
+      hideDone: "הסתרת קנויים",
+      showDone: "הצגת קנויים",
     },
     backup: {
       eyebrow: "מעבר בין טלפונים",
@@ -354,20 +414,35 @@ const translations = {
       anonKeyPlaceholder: "sb_publishable_...",
       email: "אימייל משפחתי",
       emailPlaceholder: "family@example.com",
+      displayName: "השם שלך במשפחה",
+      displayNamePlaceholder: "אמא, אבא, סבתא...",
+      familyName: "שם המשפחה",
+      familyNamePlaceholder: "המשפחה שלנו",
+      joinCode: "קוד הזמנה",
+      joinCodePlaceholder: "ABC123",
       saveSettings: "שמירת הגדרות",
       sendLink: "שליחת קישור כניסה",
+      createFamily: "יצירת משפחה",
+      joinFamily: "הצטרפות",
       push: "שמירה לענן",
       pull: "טעינה מהענן",
       signOut: "יציאה",
-      help: "אפשר להשתמש באותו אימייל משפחתי בכמה טלפונים. הנתונים מוגנים בעזרת Supabase Auth ו-RLS.",
+      help: "כל מבוגר נכנס עם האימייל שלו. המשפחה מתחברת בקוד הזמנה; הנתונים מוגנים בעזרת Supabase Auth ו-RLS.",
+      familyConnected: "משפחה: {name}",
+      inviteCode: "קוד משפחה: {code}",
       lastSync: "סנכרון אחרון: {time}",
       neverSynced: "עדיין לא סונכרן",
       setupMissing: "מלאו Supabase URL, anon key ואימייל.",
+      familyMissing: "צרו משפחה או הצטרפו עם קוד.",
+      familyCreated: "המשפחה נוצרה",
+      familyJoined: "הצטרפתם למשפחה",
+      joinMissing: "הכניסו קוד הזמנה",
       settingsSaved: "הגדרות הסנכרון נשמרו",
       linkSent: "קישור כניסה נשלח לאימייל",
       loginRequired: "קודם צריך להתחבר באימייל",
       cloudSaved: "נשמר בענן",
       cloudLoaded: "נטען מהענן",
+      cloudMerged: "השינויים אוחדו",
       noCloudData: "עדיין אין נתונים בענן",
       signedOut: "התנתקתם מהענן",
       failed: "הסנכרון לא הצליח",
@@ -383,6 +458,11 @@ const translations = {
       avoids: "אסור / לא אוהב/ת",
       avoidsPlaceholder: "דגים, חלבי, חריף",
       savePrefs: "שמירת העדפות",
+      role: "תפקיד",
+      roleParent: "הורה",
+      roleChild: "ילד/ה",
+      roleAdult: "מבוגר/ת",
+      roleGuest: "אורח/ת",
     },
     profile: {
       family: "משפחה",
@@ -403,6 +483,17 @@ const translations = {
       ingredientsPlaceholder: "עוף, גזר, תפוחי אדמה",
       note: "הערה",
       notePlaceholder: "לדוגמה: נוח להכין ליומיים",
+      photo: "צילום מנה",
+      photoHelp: "הצילום נשמר מקומית בגודל מוקטן.",
+      servings: "מנות",
+      prepMinutes: "זמן הכנה, דקות",
+      season: "עונה",
+      favorite: "מנה אהובה",
+      seasonAny: "תמיד",
+      seasonSummer: "קיץ",
+      seasonWinter: "חורף",
+      seasonWeekend: "סוף שבוע",
+      seasonHoliday: "חג",
     },
     import: {
       eyebrow: "מילוי מהיר",
@@ -519,6 +610,21 @@ const profileLabelKeys = {
   "member-adults": { defaultName: "Взрослые", key: "profile.adults" },
 };
 
+const roleLabelKeys = {
+  parent: "family.roleParent",
+  child: "family.roleChild",
+  adult: "family.roleAdult",
+  guest: "family.roleGuest",
+};
+
+const seasonLabelKeys = {
+  any: "dishForm.seasonAny",
+  summer: "dishForm.seasonSummer",
+  winter: "dishForm.seasonWinter",
+  weekend: "dishForm.seasonWeekend",
+  holiday: "dishForm.seasonHoliday",
+};
+
 const mealTypes = [
   { id: "breakfast", labelKey: "meal.breakfast" },
   { id: "lunch", labelKey: "meal.lunch" },
@@ -526,6 +632,11 @@ const mealTypes = [
 ];
 
 const defaultState = {
+  meta: {
+    schemaVersion: STATE_SCHEMA_VERSION,
+    deviceId: createId("device"),
+    updatedAt: new Date().toISOString(),
+  },
   language: "ru",
   currentWeekStart: getWeekStart(new Date()).toISOString(),
   activeFilter: FILTER_ALL,
@@ -536,16 +647,24 @@ const defaultState = {
     supabaseUrl: "",
     anonKey: "",
     email: "",
+    displayName: "",
+    familyId: "",
+    familyName: "",
+    inviteCode: "",
+    joinCode: "",
     lastSyncedAt: "",
+    lastCloudUpdatedAt: "",
   },
   pantry: ["яйца", "мука", "лук"],
   profiles: [
-    { id: "member-family", name: "Семья", likes: ["любимое", "домашнее"], avoids: [] },
-    { id: "member-kids", name: "Дети", likes: ["дети любят", "быстро"], avoids: ["рыба"] },
-    { id: "member-adults", name: "Взрослые", likes: ["легкое", "овощи"], avoids: [] },
+    { id: "member-family", name: "Семья", role: "parent", likes: ["любимое", "домашнее"], avoids: [] },
+    { id: "member-kids", name: "Дети", role: "child", likes: ["дети любят", "быстро"], avoids: ["рыба"] },
+    { id: "member-adults", name: "Взрослые", role: "adult", likes: ["легкое", "овощи"], avoids: [] },
   ],
   slotSearch: "",
   shoppingDone: [],
+  shoppingHiddenDone: false,
+  shoppingExtra: [],
   dishes: [
     {
       id: "dish-chicken-soup",
@@ -925,6 +1044,8 @@ els.dishForm.addEventListener("submit", (event) => {
   saveDishFromForm();
 });
 
+document.querySelector("#dishPhoto").addEventListener("change", previewDishPhoto);
+
 document.querySelector("#parseImportButton").addEventListener("click", () => {
   importCandidates = parseImportCandidates(els.importText.value);
   renderImportCandidates();
@@ -1106,6 +1227,7 @@ function renderDishFilters() {
     { value: FILTER_WISHES, label: t("filters.wishes") },
     { value: FILTER_MEMBER_WANTS, label: formatMessage("filters.memberWants", { name: displayProfileName(activeMember) }) },
     { value: FILTER_LONG_AGO, label: t("filters.longAgo") },
+    { value: FILTER_FAVORITES, label: t("filters.favorites") },
     ...[...new Set(state.dishes.map((dish) => dish.category))].map((category) => ({
       value: category,
       label: displayCategory(category),
@@ -1140,6 +1262,9 @@ function renderDishCard(dish) {
   const wantedLabel = wantedBy.length ? formatMessage("dishes.wantedBy", { names: formatProfileNames(wantedBy) }) : t("dishes.nobodyWants");
   const conflicts = getProfileConflicts(dish);
   const matches = getProfileMatches(dish);
+  const prepLabel = dish.prepMinutes || dish.servings ? formatMessage("dishes.prep", { minutes: dish.prepMinutes || "?", servings: dish.servings || "?" }) : "";
+  const seasonLabel = dish.season && dish.season !== "any" ? formatMessage("dishes.season", { season: displaySeason(dish.season) }) : "";
+  const detailLabels = [dish.favorite ? t("dishes.favorite") : "", prepLabel, seasonLabel].filter(Boolean);
   const compatibilityLabel = conflicts.length
     ? formatMessage("dishes.conflictFor", { name: activeMemberName, items: conflicts.join(", ") })
     : matches.length
@@ -1148,10 +1273,15 @@ function renderDishCard(dish) {
   return `
     <article class="dish-card">
       <div class="dish-main">
-        <div class="dish-art" aria-hidden="true">${displayDishName(dish).slice(0, 1).toUpperCase()}</div>
+        <div class="dish-art" aria-hidden="true">${
+          dish.image
+            ? `<img src="${escapeHtml(dish.image)}" alt="" loading="lazy" />`
+            : escapeHtml(displayDishName(dish).slice(0, 1).toUpperCase())
+        }</div>
         <div class="dish-meta">
           <h3>${escapeHtml(displayDishName(dish))}</h3>
           <p class="dish-note">${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(cookedLabel)}</p>
+          ${detailLabels.length ? `<p class="dish-note">${escapeHtml(detailLabels.join(" · "))}</p>` : ""}
           <p class="dish-note">${escapeHtml(wantedLabel)}</p>
           <p class="dish-note ${conflicts.length ? "warn-line" : "ok-line"}">${escapeHtml(compatibilityLabel)}</p>
           <p class="dish-ingredients">${escapeHtml(displayDishIngredients(dish).join(", "))}</p>
@@ -1184,7 +1314,8 @@ function renderFamilyPanel() {
           .map(
             (profile) => `
               <button class="member-pill ${profile.id === state.activeMemberId ? "is-active" : ""}" type="button" data-member-select="${profile.id}">
-                ${escapeHtml(displayProfileName(profile))}
+                <span>${escapeHtml(displayProfileName(profile))}</span>
+                <small>${escapeHtml(displayRole(profile.role))}</small>
               </button>
             `,
           )
@@ -1207,6 +1338,14 @@ function renderFamilyPanel() {
           .join("")}
       </div>
       <form class="preference-form" id="profilePrefsForm">
+        <label class="field">
+          ${escapeHtml(t("family.role"))}
+          <select id="profileRole">
+            ${Object.keys(roleLabelKeys)
+              .map((role) => `<option value="${role}" ${activeProfile.role === role ? "selected" : ""}>${escapeHtml(displayRole(role))}</option>`)
+              .join("")}
+          </select>
+        </label>
         <label class="field">
           ${escapeHtml(formatMessage("family.likes", { name: activeProfileName }))}
           <input id="profileLikes" type="text" value="${escapeHtml(activeProfile.likes.join(", "))}" placeholder="${escapeHtml(t("family.likesPlaceholder"))}" />
@@ -1294,20 +1433,28 @@ function renderShopping() {
   renderBackupPanel();
   renderSyncPanel();
   const groups = buildShoppingGroups();
-  const totalItems = groups.reduce((count, group) => count + group.items.length, 0);
   const pantryCount = groups.reduce((count, group) => count + group.items.filter((item) => item.inPantry).length, 0);
   const toBuyItems = groups.flatMap((group) => group.items).filter((item) => !item.inPantry);
   const doneCount = groups.reduce(
     (count, group) => count + group.items.filter((item) => !item.inPantry && state.shoppingDone.includes(item.key)).length,
     0,
   );
+  const visibleGroups = state.shoppingHiddenDone
+    ? groups
+        .map((group) => ({ ...group, items: group.items.filter((item) => item.inPantry || !state.shoppingDone.includes(item.key)) }))
+        .filter((group) => group.items.length)
+    : groups;
 
   els.shoppingSummary.innerHTML = `
     <p>${formatMessage("shopping.summary", { toBuy: toBuyItems.length, pantry: pantryCount, done: doneCount })}</p>
+    <div class="summary-actions">
+      <button class="mini-button" type="button" data-toggle-hide-done>${state.shoppingHiddenDone ? t("shopping.showDone") : t("shopping.hideDone")}</button>
+      <button class="mini-button" type="button" data-clear-shopping-done>${t("shopping.clearDone")}</button>
+    </div>
   `;
 
-  els.shoppingList.innerHTML = groups.length
-    ? groups
+  els.shoppingList.innerHTML = visibleGroups.length
+    ? visibleGroups
         .map(
           (group) => `
             <section class="shopping-group">
@@ -1328,16 +1475,24 @@ function renderShopping() {
   els.shoppingList.querySelectorAll("[data-remove-pantry]").forEach((button) => {
     button.addEventListener("click", () => removePantryItem(button.dataset.removePantry));
   });
+  els.shoppingList.querySelectorAll("[data-remove-extra-shopping]").forEach((button) => {
+    button.addEventListener("click", () => removeExtraShoppingItem(button.dataset.removeExtraShopping));
+  });
+  els.shoppingSummary.querySelector("[data-toggle-hide-done]").addEventListener("click", toggleShoppingHiddenDone);
+  els.shoppingSummary.querySelector("[data-clear-shopping-done]").addEventListener("click", clearShoppingDone);
 }
 
 function renderSyncPanel() {
   const sync = state.sync || {};
   const isConfigured = Boolean(sync.supabaseUrl && sync.anonKey && sync.email);
+  const hasFamily = Boolean(sync.familyId);
   const statusLabel = syncSession?.user?.email
     ? formatMessage("sync.signedIn", { email: syncSession.user.email })
     : isConfigured
       ? t("sync.notSignedIn")
       : t("sync.disabled");
+  const familyLabel = hasFamily ? formatMessage("sync.familyConnected", { name: sync.familyName || sync.familyId }) : t("sync.familyMissing");
+  const inviteLabel = sync.inviteCode ? formatMessage("sync.inviteCode", { code: sync.inviteCode }) : "";
   const lastSyncLabel = sync.lastSyncedAt
     ? formatMessage("sync.lastSync", { time: new Intl.DateTimeFormat(getLocale(), { dateStyle: "short", timeStyle: "short" }).format(new Date(sync.lastSyncedAt)) })
     : t("sync.neverSynced");
@@ -1364,15 +1519,31 @@ function renderSyncPanel() {
           ${t("sync.email")}
           <input id="syncEmail" type="email" value="${escapeHtml(sync.email || "")}" placeholder="${escapeHtml(t("sync.emailPlaceholder"))}" autocomplete="email" />
         </label>
+        <label class="field">
+          ${t("sync.displayName")}
+          <input id="syncDisplayName" type="text" value="${escapeHtml(sync.displayName || "")}" placeholder="${escapeHtml(t("sync.displayNamePlaceholder"))}" autocomplete="name" />
+        </label>
+        <label class="field">
+          ${t("sync.familyName")}
+          <input id="syncFamilyName" type="text" value="${escapeHtml(sync.familyName || "")}" placeholder="${escapeHtml(t("sync.familyNamePlaceholder"))}" autocomplete="off" />
+        </label>
+        <label class="field">
+          ${t("sync.joinCode")}
+          <input id="syncJoinCode" type="text" value="${escapeHtml(sync.joinCode || "")}" placeholder="${escapeHtml(t("sync.joinCodePlaceholder"))}" autocomplete="off" autocapitalize="characters" />
+        </label>
         <button class="secondary-button full-width" type="submit">${t("sync.saveSettings")}</button>
       </form>
       <div class="backup-actions">
         <button class="secondary-button" id="syncLoginButton" type="button">${t("sync.sendLink")}</button>
+        <button class="secondary-button" id="syncCreateFamilyButton" type="button">${t("sync.createFamily")}</button>
+        <button class="secondary-button" id="syncJoinFamilyButton" type="button">${t("sync.joinFamily")}</button>
         <button class="secondary-button" id="syncPullButton" type="button">${t("sync.pull")}</button>
         <button class="primary-button" id="syncPushButton" type="button">${t("sync.push")}</button>
         ${syncSession ? `<button class="text-button" id="syncSignOutButton" type="button">${t("sync.signOut")}</button>` : ""}
       </div>
       <p class="muted-line">${escapeHtml(statusLabel)}</p>
+      <p class="muted-line">${escapeHtml(familyLabel)}</p>
+      ${inviteLabel ? `<p class="muted-line">${escapeHtml(inviteLabel)}</p>` : ""}
       <p class="muted-line">${escapeHtml(lastSyncLabel)}</p>
       <p class="muted-line">${t("sync.help")}</p>
     </section>
@@ -1383,6 +1554,8 @@ function renderSyncPanel() {
     saveSyncSettings();
   });
   els.syncPanel.querySelector("#syncLoginButton").addEventListener("click", sendSyncLoginLink);
+  els.syncPanel.querySelector("#syncCreateFamilyButton").addEventListener("click", createCloudFamily);
+  els.syncPanel.querySelector("#syncJoinFamilyButton").addEventListener("click", joinCloudFamily);
   els.syncPanel.querySelector("#syncPullButton").addEventListener("click", pullCloudState);
   els.syncPanel.querySelector("#syncPushButton").addEventListener("click", pushCloudState);
   els.syncPanel.querySelector("#syncSignOutButton")?.addEventListener("click", signOutCloudSync);
@@ -1412,7 +1585,7 @@ function hasSyncSettings() {
   return Boolean(sync.supabaseUrl && sync.anonKey && sync.email);
 }
 
-function saveSyncSettings() {
+function saveSyncSettings(options = {}) {
   const previousUrl = state.sync?.supabaseUrl || "";
   const previousKey = state.sync?.anonKey || "";
   const nextSync = {
@@ -1420,6 +1593,9 @@ function saveSyncSettings() {
     supabaseUrl: els.syncPanel.querySelector("#syncSupabaseUrl").value.trim(),
     anonKey: els.syncPanel.querySelector("#syncAnonKey").value.trim(),
     email: els.syncPanel.querySelector("#syncEmail").value.trim(),
+    displayName: els.syncPanel.querySelector("#syncDisplayName").value.trim(),
+    familyName: els.syncPanel.querySelector("#syncFamilyName").value.trim(),
+    joinCode: els.syncPanel.querySelector("#syncJoinCode").value.trim().toUpperCase(),
   };
 
   state.sync = nextSync;
@@ -1427,8 +1603,8 @@ function saveSyncSettings() {
     supabaseClient = null;
     syncSession = null;
   }
-  saveState();
-  showToast(t("sync.settingsSaved"));
+  saveState({ touch: false });
+  if (options.silent !== true) showToast(t("sync.settingsSaved"));
   renderShopping();
   initializeCloudSync();
 }
@@ -1454,33 +1630,139 @@ async function sendSyncLoginLink() {
   }
 }
 
+async function createCloudFamily() {
+  try {
+    saveSyncSettings({ silent: true });
+    const { client, session } = await requireCloudSession();
+    const createdAt = new Date().toISOString();
+    const familyId = crypto.randomUUID ? crypto.randomUUID() : createId("family");
+    const inviteCode = createInviteCode();
+    const familyName = state.sync.familyName || t("sync.familyNamePlaceholder");
+    const displayName = state.sync.displayName || state.sync.email || session.user.email || t("profile.family");
+    const { error: familyError } = await client.from("home_menu_families").insert({
+      id: familyId,
+      owner_id: session.user.id,
+      name: familyName,
+      invite_code: inviteCode,
+      created_at: createdAt,
+    });
+    if (familyError) throw familyError;
+    const { error: memberError } = await client.from("home_menu_family_members").upsert(
+      {
+        family_id: familyId,
+        user_id: session.user.id,
+        role: "parent",
+        display_name: displayName,
+        created_at: createdAt,
+      },
+      { onConflict: "family_id,user_id" },
+    );
+    if (memberError) throw memberError;
+
+    state.sync = {
+      ...(state.sync || {}),
+      familyId,
+      familyName,
+      inviteCode,
+      joinCode: inviteCode,
+    };
+    saveState({ touch: false });
+    const pushed = await pushCloudState();
+    if (!pushed) return;
+    showToast(t("sync.familyCreated"));
+    renderShopping();
+  } catch {
+    showToast(t("sync.failed"));
+  }
+}
+
+async function joinCloudFamily() {
+  try {
+    saveSyncSettings({ silent: true });
+    if (!state.sync.joinCode) {
+      showToast(t("sync.joinMissing"));
+      return;
+    }
+    const { client, session } = await requireCloudSession();
+    const code = state.sync.joinCode.trim().toUpperCase();
+    const { data: families, error: familyError } = await client.rpc("join_home_menu_family", {
+      invite_code_input: code,
+      display_name_input: state.sync.displayName || state.sync.email || session.user.email || t("profile.fallback"),
+      role_input: "adult",
+    });
+    if (familyError) throw familyError;
+    const family = Array.isArray(families) ? families[0] : families;
+    if (!family?.family_id) {
+      showToast(t("sync.familyMissing"));
+      return;
+    }
+
+    state.sync = {
+      ...(state.sync || {}),
+      familyId: family.family_id,
+      familyName: family.family_name || state.sync.familyName,
+      inviteCode: family.invite_code || code,
+      joinCode: code,
+    };
+    saveState({ touch: false });
+    await pullCloudState();
+    showToast(t("sync.familyJoined"));
+    renderShopping();
+  } catch {
+    showToast(t("sync.failed"));
+  }
+}
+
 async function pushCloudState() {
   try {
     const { client, session } = await requireCloudSession();
+    if (!state.sync.familyId) throw new Error("family-required");
+    const { data: cloudState, error: readError } = await client
+      .from("home_menu_family_states")
+      .select("state, updated_at")
+      .eq("family_id", state.sync.familyId)
+      .maybeSingle();
+    if (readError) throw readError;
+
+    let nextState = state;
+    let merged = false;
+    if (cloudState?.state && shouldMergeCloudState(cloudState.updated_at)) {
+      nextState = mergeStates(state, cloudState.state);
+      nextState.sync = state.sync;
+      state = normalizeState(nextState);
+      merged = true;
+    }
+
     const syncedAt = new Date().toISOString();
-    const { error } = await client.from("home_menu_states").upsert(
+    const { error } = await client.from("home_menu_family_states").upsert(
       {
-        user_id: session.user.id,
+        family_id: state.sync.familyId,
         state: sanitizeStateForSync(state),
+        updated_by: session.user.id,
         updated_at: syncedAt,
       },
-      { onConflict: "user_id" },
+      { onConflict: "family_id" },
     );
     if (error) throw error;
 
     state.sync.lastSyncedAt = syncedAt;
-    saveState();
+    state.sync.lastCloudUpdatedAt = syncedAt;
+    saveState({ touch: false });
     renderSyncPanel();
-    showToast(t("sync.cloudSaved"));
+    showToast(merged ? t("sync.cloudMerged") : t("sync.cloudSaved"));
+    return true;
   } catch (error) {
-    showToast(error?.message === "login-required" ? t("sync.loginRequired") : t("sync.failed"));
+    const message = error?.message === "login-required" ? t("sync.loginRequired") : error?.message === "family-required" ? t("sync.familyMissing") : t("sync.failed");
+    showToast(message);
+    return false;
   }
 }
 
 async function pullCloudState() {
   try {
-    const { client, session } = await requireCloudSession();
-    const { data, error } = await client.from("home_menu_states").select("state, updated_at").eq("user_id", session.user.id).maybeSingle();
+    const { client } = await requireCloudSession();
+    if (!state.sync.familyId) throw new Error("family-required");
+    const { data, error } = await client.from("home_menu_family_states").select("state, updated_at").eq("family_id", state.sync.familyId).maybeSingle();
     if (error) throw error;
     if (!data?.state) {
       showToast(t("sync.noCloudData"));
@@ -1490,22 +1772,20 @@ async function pullCloudState() {
     const syncSettings = {
       ...(state.sync || {}),
       lastSyncedAt: data.updated_at || new Date().toISOString(),
+      lastCloudUpdatedAt: data.updated_at || new Date().toISOString(),
     };
+    const shouldMerge = shouldMergeCloudState(data.updated_at);
     state = normalizeState({
       ...structuredClone(defaultState),
-      ...data.state,
+      ...(shouldMerge ? mergeStates(state, data.state) : data.state),
       sync: syncSettings,
-      plans: data.state.plans ?? {},
-      dishes: data.state.dishes?.length ? data.state.dishes : structuredClone(defaultState.dishes),
-      profiles: data.state.profiles?.length ? data.state.profiles : structuredClone(defaultState.profiles),
-      pantry: Array.isArray(data.state.pantry) ? data.state.pantry : structuredClone(defaultState.pantry),
-      shoppingDone: data.state.shoppingDone ?? [],
     });
-    saveState();
+    saveState({ touch: false });
     render();
-    showToast(t("sync.cloudLoaded"));
+    showToast(shouldMerge ? t("sync.cloudMerged") : t("sync.cloudLoaded"));
   } catch (error) {
-    showToast(error?.message === "login-required" ? t("sync.loginRequired") : t("sync.failed"));
+    const message = error?.message === "login-required" ? t("sync.loginRequired") : error?.message === "family-required" ? t("sync.familyMissing") : t("sync.failed");
+    showToast(message);
   }
 }
 
@@ -1552,6 +1832,87 @@ function sanitizeStateForSync(sourceState) {
   return copy;
 }
 
+function shouldMergeCloudState(cloudUpdatedAt) {
+  const lastCloud = state.sync?.lastCloudUpdatedAt || state.sync?.lastSyncedAt || "";
+  if (!cloudUpdatedAt || !lastCloud) return false;
+  const localUpdatedAt = state.meta?.updatedAt || UNKNOWN_UPDATED_AT;
+  return cloudUpdatedAt > lastCloud && localUpdatedAt > lastCloud;
+}
+
+function mergeStates(localState, remoteState) {
+  const local = normalizeState({ ...structuredClone(defaultState), ...structuredClone(localState), sync: localState.sync });
+  const remote = normalizeState({ ...structuredClone(defaultState), ...structuredClone(remoteState), sync: localState.sync });
+  return {
+    ...remote,
+    ...local,
+    meta: {
+      ...remote.meta,
+      ...local.meta,
+      updatedAt: maxIso(local.meta?.updatedAt, remote.meta?.updatedAt),
+      schemaVersion: STATE_SCHEMA_VERSION,
+    },
+    dishes: mergeById(local.dishes, remote.dishes, mergeDishRecords),
+    profiles: mergeById(local.profiles, remote.profiles, mergeProfileRecords),
+    plans: mergePlans(local.plans, remote.plans),
+    pantry: mergeStringLists(local.pantry, remote.pantry),
+    shoppingDone: mergeStringLists(local.shoppingDone, remote.shoppingDone),
+    shoppingExtra: mergeById(local.shoppingExtra, remote.shoppingExtra, mergeUpdatedRecord),
+    sync: localState.sync,
+  };
+}
+
+function mergeById(localItems = [], remoteItems = [], mergeItem = mergeUpdatedRecord) {
+  const map = new Map();
+  remoteItems.forEach((item) => map.set(item.id, item));
+  localItems.forEach((item) => {
+    map.set(item.id, map.has(item.id) ? mergeItem(item, map.get(item.id)) : item);
+  });
+  return [...map.values()];
+}
+
+function mergeUpdatedRecord(local, remote) {
+  return (local?.updatedAt || UNKNOWN_UPDATED_AT) >= (remote?.updatedAt || UNKNOWN_UPDATED_AT) ? local : remote;
+}
+
+function mergeProfileRecords(local, remote) {
+  return {
+    ...mergeUpdatedRecord(local, remote),
+    likes: mergeStringLists(local.likes, remote.likes),
+    avoids: mergeStringLists(local.avoids, remote.avoids),
+  };
+}
+
+function mergeDishRecords(local, remote) {
+  const base = mergeUpdatedRecord(local, remote);
+  return {
+    ...base,
+    wantedBy: mergeStringLists(local.wantedBy, remote.wantedBy),
+    wanted: mergeStringLists(local.wantedBy, remote.wantedBy).length > 0,
+    i18n: mergeDishI18n(remote.i18n, local.i18n),
+  };
+}
+
+function mergePlans(localPlans = {}, remotePlans = {}) {
+  const result = structuredClone(remotePlans || {});
+  Object.entries(localPlans || {}).forEach(([dateKey, meals]) => {
+    result[dateKey] = { ...(result[dateKey] || {}), ...(meals || {}) };
+  });
+  return result;
+}
+
+function mergeStringLists(first = [], second = []) {
+  const map = new Map();
+  [...(second || []), ...(first || [])].forEach((item) => {
+    const key = normalize(item);
+    if (key && !map.has(key)) map.set(key, item);
+  });
+  return [...map.values()];
+}
+
+function maxIso(first = UNKNOWN_UPDATED_AT, second = UNKNOWN_UPDATED_AT) {
+  return first >= second ? first : second;
+}
+
 function renderShoppingItem(item) {
   const isDone = state.shoppingDone.includes(item.key);
   const statusClass = item.inPantry ? "is-stocked" : isDone ? "is-done" : "";
@@ -1566,7 +1927,8 @@ function renderShoppingItem(item) {
           item.inPantry
             ? `<button class="mini-button" type="button" data-remove-pantry="${escapeHtml(item.key)}">↺</button>`
             : `<button class="mini-button" type="button" data-add-pantry="${escapeHtml(item.name)}">${t("shopping.home")}</button>
-               <button class="mini-button" type="button" data-toggle-shopping="${escapeHtml(item.key)}">${isDone ? "↺" : "✓"}</button>`
+               <button class="mini-button" type="button" data-toggle-shopping="${escapeHtml(item.key)}">${isDone ? "↺" : "✓"}</button>
+               ${item.extraId ? `<button class="mini-button is-danger" type="button" data-remove-extra-shopping="${escapeHtml(item.extraId)}">×</button>` : ""}`
         }
       </div>
     </div>
@@ -1575,6 +1937,19 @@ function renderShoppingItem(item) {
 
 function renderPantryPanel() {
   els.pantryPanel.innerHTML = `
+    <section class="manage-panel pantry-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">${t("shopping.manualEyebrow")}</p>
+          <h3>${t("shopping.manualTitle")}</h3>
+        </div>
+        <span class="panel-count">${state.shoppingExtra.length}</span>
+      </div>
+      <form class="inline-form" id="extraShoppingForm">
+        <input id="extraShoppingInput" type="text" placeholder="${escapeHtml(t("shopping.manualPlaceholder"))}" autocomplete="off" />
+        <button class="secondary-button" type="submit">${t("actions.add")}</button>
+      </form>
+    </section>
     <section class="manage-panel pantry-panel">
       <div class="panel-heading">
         <div>
@@ -1604,6 +1979,11 @@ function renderPantryPanel() {
       </div>
     </section>
   `;
+
+  els.pantryPanel.querySelector("#extraShoppingForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    addExtraShoppingItems(els.pantryPanel.querySelector("#extraShoppingInput").value);
+  });
 
   els.pantryPanel.querySelector("#pantryForm").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -1644,22 +2024,83 @@ function openDishForm(dishId = "") {
   const dish = findDish(dishId);
   els.dishDialogTitle.textContent = dish ? t("dishForm.editTitle") : t("dishForm.addTitle");
   document.querySelector("#dishId").value = dish?.id ?? "";
+  document.querySelector("#dishImage").value = dish?.image ?? "";
+  document.querySelector("#dishPhoto").value = "";
+  renderDishPhotoPreview(dish?.image ?? "");
   document.querySelector("#dishName").value = dish ? displayDishName(dish) : "";
   document.querySelector("#dishCategory").value = dish?.category ?? "Основное";
   document.querySelector("#dishTags").value = dish ? displayDishTags(dish).join(", ") : "";
   document.querySelector("#dishIngredients").value = dish ? displayDishIngredients(dish).join(", ") : "";
   document.querySelector("#dishNote").value = dish ? displayDishNote(dish) : "";
+  document.querySelector("#dishServings").value = dish?.servings || "";
+  document.querySelector("#dishPrepMinutes").value = dish?.prepMinutes || "";
+  document.querySelector("#dishSeason").value = dish?.season || "any";
+  document.querySelector("#dishFavorite").checked = Boolean(dish?.favorite);
   els.dishDialog.showModal();
 }
 
-function saveDishFromForm() {
-  const dishId = document.querySelector("#dishId").value || `dish-${Date.now()}`;
+async function previewDishPhoto() {
+  const image = await readDishImageFromForm(document.querySelector("#dishImage").value);
+  document.querySelector("#dishImage").value = image;
+  renderDishPhotoPreview(image);
+}
+
+function renderDishPhotoPreview(image) {
+  const preview = document.querySelector("#dishPhotoPreview");
+  preview.innerHTML = image ? `<img src="${escapeHtml(image)}" alt="" />` : "";
+  preview.classList.toggle("is-empty", !image);
+}
+
+async function readDishImageFromForm(fallback = "") {
+  const existing = document.querySelector("#dishImage").value || fallback;
+  const file = document.querySelector("#dishPhoto").files?.[0];
+  if (!file) return existing;
+  try {
+    return await compressImageFile(file);
+  } catch {
+    return existing;
+  }
+}
+
+function compressImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = reject;
+      image.onload = () => {
+        const maxSize = 640;
+        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.72));
+      };
+      image.src = String(reader.result || "");
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function saveDishFromForm() {
+  const dishId = document.querySelector("#dishId").value || createId("dish");
   const previous = findDish(dishId);
   const name = document.querySelector("#dishName").value.trim();
   const category = document.querySelector("#dishCategory").value;
   const tags = parseList(document.querySelector("#dishTags").value);
   const ingredients = parseList(document.querySelector("#dishIngredients").value);
   const note = document.querySelector("#dishNote").value.trim();
+  const servings = Number(document.querySelector("#dishServings").value) || 0;
+  const prepMinutes = Number(document.querySelector("#dishPrepMinutes").value) || 0;
+  const season = document.querySelector("#dishSeason").value || "any";
+  const favorite = document.querySelector("#dishFavorite").checked;
+  const image = await readDishImageFromForm(previous?.image || "");
+  const updatedAt = new Date().toISOString();
 
   if (!name) return;
 
@@ -1674,6 +2115,12 @@ function saveDishFromForm() {
     wanted: previous?.wanted ?? false,
     wantedBy: previous ? getWantedBy(previous) : [],
     i18n: previous?.i18n ?? {},
+    image,
+    servings,
+    prepMinutes,
+    season,
+    favorite,
+    updatedAt,
   };
 
   if (state.language !== "ru") {
@@ -1728,7 +2175,7 @@ function saveImportedDishes() {
   const newDishes = selected
     .filter((name) => !existing.has(normalize(name)))
     .map((name) => ({
-      id: `dish-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      id: createId("dish"),
       name,
       category: document.querySelector("#importCategory").value,
       tags: [t("tags.import")],
@@ -1737,6 +2184,12 @@ function saveImportedDishes() {
       lastCooked: "",
       wanted: false,
       wantedBy: [],
+      servings: 0,
+      prepMinutes: 0,
+      season: "any",
+      favorite: false,
+      image: "",
+      updatedAt: new Date().toISOString(),
     }));
 
   if (!newDishes.length) {
@@ -1822,6 +2275,7 @@ function renderQuickPicks() {
     { key: FILTER_WISHES, label: t("filters.wishes") },
     { key: FILTER_MEMBER_WANTS, label: formatMessage("filters.memberWants", { name: displayProfileName(getActiveMember()) }) },
     { key: FILTER_LONG_AGO, label: t("filters.longAgo") },
+    { key: FILTER_FAVORITES, label: t("filters.favorites") },
     { key: "quick-fast", label: t("filters.quickFast") },
     { key: "quick-kids", label: t("filters.quickKids") },
   ];
@@ -1849,6 +2303,7 @@ function renderSlotDishList() {
         return getWantedBy(dish).includes(state.activeMemberId);
       }
       if (state.slotSearch === FILTER_LONG_AGO || isLocalizedSearch(search, "filters.longAgo")) return isLongAgo(dish.lastCooked);
+      if (state.slotSearch === FILTER_FAVORITES || isLocalizedSearch(search, "filters.favorites")) return dish.favorite;
       if (state.slotSearch === "quick-fast" || isLocalizedSearch(search, "filters.quickFast")) return hasAnyTag(dish, ["быстро", "מהיר"]);
       if (state.slotSearch === "quick-kids" || isLocalizedSearch(search, "filters.quickKids")) return hasAnyTag(dish, ["дети любят", "ילדים אוהבים"]);
       return getDishSearchText(dish).includes(search);
@@ -1869,7 +2324,7 @@ function renderSlotDishList() {
             return `
               <button class="wish-card" type="button" data-choose-dish="${dish.id}">
                 <div>
-                  <h3>${escapeHtml(dish.name)}</h3>
+                  <h3>${escapeHtml(displayDishName(dish))}</h3>
                   <p>${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(formatTags(displayDishTags(dish)))}</p>
                   <p class="${conflicts.length ? "warn-line" : "ok-line"}">${escapeHtml(profileLine)}</p>
                 </div>
@@ -1897,6 +2352,7 @@ function setSlot(dateKey, mealId, dishId) {
   state.plans[dateKey][mealId] = dishId;
   const dish = findDish(dishId);
   if (dish) {
+    dish.updatedAt = new Date().toISOString();
     dish.lastCooked = dateKey;
     dish.wanted = false;
     dish.wantedBy = [];
@@ -1925,6 +2381,7 @@ function autoPlanDay(dateKey) {
     usedThisWeek.add(dish.id);
     state.plans[dateKey] = state.plans[dateKey] || {};
     state.plans[dateKey][meal.id] = dish.id;
+    dish.updatedAt = new Date().toISOString();
     dish.lastCooked = dateKey;
     dish.wanted = false;
     dish.wantedBy = [];
@@ -1946,6 +2403,7 @@ function autoPlanWeek() {
       usedThisWeek.add(dish.id);
       state.plans[dateKey] = state.plans[dateKey] || {};
       state.plans[dateKey][meal.id] = dish.id;
+      dish.updatedAt = new Date().toISOString();
       dish.lastCooked = dateKey;
       dish.wanted = false;
       dish.wantedBy = [];
@@ -1987,6 +2445,7 @@ function toggleWanted(dishId, profileId = state.activeMemberId) {
   const wantedBy = getWantedBy(dish);
   dish.wantedBy = wantedBy.includes(profileId) ? wantedBy.filter((id) => id !== profileId) : [...wantedBy, profileId];
   dish.wanted = dish.wantedBy.length > 0;
+  dish.updatedAt = new Date().toISOString();
   saveState();
   render();
 }
@@ -1995,6 +2454,44 @@ function toggleShoppingDone(key) {
   state.shoppingDone = state.shoppingDone.includes(key)
     ? state.shoppingDone.filter((item) => item !== key)
     : [...state.shoppingDone, key];
+  saveState();
+  renderShopping();
+}
+
+function toggleShoppingHiddenDone() {
+  state.shoppingHiddenDone = !state.shoppingHiddenDone;
+  saveState();
+  renderShopping();
+}
+
+function clearShoppingDone() {
+  state.shoppingDone = [];
+  saveState();
+  renderShopping();
+}
+
+function addExtraShoppingItems(value) {
+  const items = parseList(value);
+  if (!items.length) return;
+  const existing = new Set(state.shoppingExtra.map((item) => normalize(item.name)));
+  const createdAt = new Date().toISOString();
+  const nextItems = items
+    .filter((name) => {
+      const key = normalize(name);
+      if (existing.has(key)) return false;
+      existing.add(key);
+      return true;
+    })
+    .map((name) => ({ id: createId("extra"), name, createdAt, updatedAt: createdAt }));
+  state.shoppingExtra = [...state.shoppingExtra, ...nextItems];
+  saveState();
+  renderShopping();
+}
+
+function removeExtraShoppingItem(extraId) {
+  const key = `extra:${extraId}`;
+  state.shoppingExtra = state.shoppingExtra.filter((item) => item.id !== extraId);
+  state.shoppingDone = state.shoppingDone.filter((item) => item !== key);
   saveState();
   renderShopping();
 }
@@ -2048,6 +2545,20 @@ function buildShoppingGroups() {
     });
   });
 
+  state.shoppingExtra.forEach((item) => {
+    const name = item.name.trim();
+    if (!name) return;
+    const key = `extra:${item.id}`;
+    ingredientMap.set(key, {
+      key,
+      extraId: item.id,
+      name,
+      sources: new Set([t("shopping.manualSource")]),
+      group: getIngredientGroup(name),
+      inPantry: false,
+    });
+  });
+
   const grouped = new Map();
   [...ingredientMap.values()].forEach((item) => {
     if (!grouped.has(item.group)) grouped.set(item.group, []);
@@ -2084,6 +2595,7 @@ function getFilteredDishes() {
       if (state.activeFilter === FILTER_WISHES) return hasWishes(dish);
       if (state.activeFilter === FILTER_MEMBER_WANTS) return getWantedBy(dish).includes(state.activeMemberId);
       if (state.activeFilter === FILTER_LONG_AGO) return isLongAgo(dish.lastCooked);
+      if (state.activeFilter === FILTER_FAVORITES) return dish.favorite;
       if (state.activeFilter !== FILTER_ALL) return dish.category === state.activeFilter;
       return true;
     })
@@ -2098,6 +2610,8 @@ function sortRecommended(a, b) {
   if (activeWanted) return activeWanted;
   const wanted = Number(hasWishes(b)) - Number(hasWishes(a));
   if (wanted) return wanted;
+  const favorite = Number(b.favorite) - Number(a.favorite);
+  if (favorite) return favorite;
   const profileMatches = getProfileMatches(b).length - getProfileMatches(a).length;
   if (profileMatches) return profileMatches;
   return (getDaysAgo(b.lastCooked) ?? 9999) - (getDaysAgo(a.lastCooked) ?? 9999);
@@ -2148,7 +2662,19 @@ function getDishTextVariants(dish) {
     if (!entry) return [];
     return [entry.name, entry.tags?.join(" "), entry.ingredients?.join(" "), entry.note];
   });
-  return [dish.name, dish.category, getCategorySearchText(dish.category), dish.tags.join(" "), dish.ingredients.join(" "), dish.note, ...localized].filter(Boolean);
+  return [
+    dish.name,
+    dish.category,
+    getCategorySearchText(dish.category),
+    dish.tags.join(" "),
+    dish.ingredients.join(" "),
+    dish.note,
+    dish.favorite ? t("dishes.favorite") : "",
+    dish.season ? displaySeason(dish.season) : "",
+    dish.servings || "",
+    dish.prepMinutes || "",
+    ...localized,
+  ].filter(Boolean);
 }
 
 function getLocalizedDishEntry(dish, language = state.language) {
@@ -2205,7 +2731,7 @@ function addProfile(name) {
     showToast(t("toasts.profileExists"));
     return;
   }
-  const profile = { id: `member-${Date.now()}`, name: trimmed, likes: [], avoids: [] };
+  const profile = { id: createId("member"), name: trimmed, role: "child", likes: [], avoids: [], updatedAt: new Date().toISOString() };
   state.profiles = [...state.profiles, profile];
   state.activeMemberId = profile.id;
   state.activeFilter = FILTER_ALL;
@@ -2215,9 +2741,12 @@ function addProfile(name) {
 
 function saveProfilePreferences() {
   const profileId = state.activeMemberId;
+  const role = els.familyPanel.querySelector("#profileRole").value;
   const likes = parseList(els.familyPanel.querySelector("#profileLikes").value);
   const avoids = parseList(els.familyPanel.querySelector("#profileAvoids").value);
-  state.profiles = state.profiles.map((profile) => (profile.id === profileId ? { ...profile, likes, avoids } : profile));
+  state.profiles = state.profiles.map((profile) =>
+    profile.id === profileId ? { ...profile, role, likes, avoids, updatedAt: new Date().toISOString() } : profile,
+  );
   saveState();
   showToast(t("toasts.prefsSaved"));
   render();
@@ -2228,7 +2757,7 @@ function removeProfile(profileId) {
   state.profiles = state.profiles.filter((profile) => profile.id !== profileId);
   state.dishes = state.dishes.map((dish) => {
     const wantedBy = getWantedBy(dish).filter((id) => id !== profileId);
-    return { ...dish, wantedBy, wanted: wantedBy.length > 0 };
+    return { ...dish, wantedBy, wanted: wantedBy.length > 0, updatedAt: new Date().toISOString() };
   });
   if (!state.profiles.some((profile) => profile.id === state.activeMemberId)) {
     state.activeMemberId = "member-family";
@@ -2451,6 +2980,16 @@ function displayCategory(category) {
   return key ? t(key) : category;
 }
 
+function displayRole(role) {
+  const key = roleLabelKeys[role] || roleLabelKeys.guest;
+  return t(key);
+}
+
+function displaySeason(season) {
+  const key = seasonLabelKeys[season] || seasonLabelKeys.any;
+  return t(key);
+}
+
 function displayIngredientGroup(group) {
   const key = groupLabelKeys[group];
   return key ? t(key) : group;
@@ -2480,7 +3019,25 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function saveState() {
+function createId(prefix) {
+  const random = crypto.getRandomValues ? [...crypto.getRandomValues(new Uint8Array(6))].map((value) => value.toString(16).padStart(2, "0")).join("") : Math.random().toString(16).slice(2);
+  return `${prefix}-${Date.now().toString(36)}-${random}`;
+}
+
+function createInviteCode() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = crypto.getRandomValues ? crypto.getRandomValues(new Uint8Array(6)) : Array.from({ length: 6 }, () => Math.floor(Math.random() * 255));
+  return [...bytes].map((byte) => alphabet[byte % alphabet.length]).join("");
+}
+
+function saveState(options = {}) {
+  if (options.touch !== false) {
+    state.meta = {
+      ...(state.meta || {}),
+      schemaVersion: STATE_SCHEMA_VERSION,
+      updatedAt: new Date().toISOString(),
+    };
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
@@ -2496,6 +3053,8 @@ function loadState() {
       profiles: saved.profiles?.length ? saved.profiles : structuredClone(defaultState.profiles),
       pantry: Array.isArray(saved.pantry) ? saved.pantry : structuredClone(defaultState.pantry),
       shoppingDone: saved.shoppingDone ?? [],
+      shoppingHiddenDone: Boolean(saved.shoppingHiddenDone),
+      shoppingExtra: Array.isArray(saved.shoppingExtra) ? saved.shoppingExtra : [],
       sync: normalizeSyncSettings(saved.sync),
     });
   } catch {
@@ -2504,6 +3063,7 @@ function loadState() {
 }
 
 function normalizeState(nextState) {
+  nextState.meta = normalizeMeta(nextState.meta);
   nextState.language = SUPPORTED_LANGUAGES.includes(nextState.language) ? nextState.language : defaultState.language;
   nextState.activeFilter = normalizeFilterValue(nextState.activeFilter);
   nextState.sync = normalizeSyncSettings(nextState.sync);
@@ -2514,9 +3074,22 @@ function normalizeState(nextState) {
     ? nextState.activeMemberId
     : "member-family";
   nextState.pantry = Array.isArray(nextState.pantry) ? nextState.pantry : [];
+  nextState.shoppingDone = Array.isArray(nextState.shoppingDone) ? nextState.shoppingDone : [];
+  nextState.shoppingHiddenDone = Boolean(nextState.shoppingHiddenDone);
+  nextState.shoppingExtra = Array.isArray(nextState.shoppingExtra) ? nextState.shoppingExtra.map(normalizeExtraShoppingItem) : [];
   nextState.importText = nextState.importText || "";
-  nextState.dishes = mergeDefaultDishes(nextState.dishes.map(normalizeDish));
+  const dishes = Array.isArray(nextState.dishes) ? nextState.dishes : [];
+  nextState.dishes = mergeDefaultDishes(dishes.map(normalizeDish).filter((dish) => dish.id));
   return nextState;
+}
+
+function normalizeMeta(meta = {}) {
+  meta = meta || {};
+  return {
+    schemaVersion: STATE_SCHEMA_VERSION,
+    deviceId: meta.deviceId || createId("device"),
+    updatedAt: meta.updatedAt || new Date().toISOString(),
+  };
 }
 
 function mergeDefaultDishes(dishes) {
@@ -2526,17 +3099,24 @@ function mergeDefaultDishes(dishes) {
 }
 
 function normalizeSyncSettings(sync = {}) {
+  sync = sync || {};
   return {
     supabaseUrl: sync.supabaseUrl || "",
     anonKey: sync.anonKey || "",
     email: sync.email || "",
+    displayName: sync.displayName || "",
+    familyId: sync.familyId || "",
+    familyName: sync.familyName || "",
+    inviteCode: sync.inviteCode || "",
+    joinCode: sync.joinCode || "",
     lastSyncedAt: sync.lastSyncedAt || "",
+    lastCloudUpdatedAt: sync.lastCloudUpdatedAt || "",
   };
 }
 
 function normalizeFilterValue(filter) {
   if (!filter) return FILTER_ALL;
-  if ([FILTER_ALL, FILTER_WISHES, FILTER_MEMBER_WANTS, FILTER_LONG_AGO].includes(filter)) return filter;
+  if ([FILTER_ALL, FILTER_WISHES, FILTER_MEMBER_WANTS, FILTER_LONG_AGO, FILTER_FAVORITES].includes(filter)) return filter;
   if (filter === "Все") return FILTER_ALL;
   if (filter === "Желания") return FILTER_WISHES;
   if (filter === "Давно не ели") return FILTER_LONG_AGO;
@@ -2545,18 +3125,33 @@ function normalizeFilterValue(filter) {
 }
 
 function normalizeProfile(profile) {
+  profile = profile || {};
   const fallback = defaultState.profiles.find((item) => item.id === profile.id);
   return {
     id: profile.id,
     name: profile.name || "Профиль",
+    role: roleLabelKeys[profile.role] ? profile.role : fallback?.role || "guest",
     likes: Array.isArray(profile.likes) ? profile.likes : fallback?.likes || [],
     avoids: Array.isArray(profile.avoids) ? profile.avoids : fallback?.avoids || [],
+    updatedAt: profile.updatedAt || fallback?.updatedAt || UNKNOWN_UPDATED_AT,
+  };
+}
+
+function normalizeExtraShoppingItem(item) {
+  item = item || {};
+  return {
+    id: item.id || createId("extra"),
+    name: item.name || "",
+    createdAt: item.createdAt || UNKNOWN_UPDATED_AT,
+    updatedAt: item.updatedAt || item.createdAt || UNKNOWN_UPDATED_AT,
   };
 }
 
 function normalizeDish(dish) {
+  dish = dish || {};
   const wantedBy = Array.isArray(dish.wantedBy) ? dish.wantedBy : dish.wanted ? ["member-family"] : [];
   const fallback = defaultState.dishes.find((item) => item.id === dish.id);
+  const fallbackFavorite = fallback?.favorite ?? Boolean(dish.tags?.some((tag) => normalize(tag).includes("любимое") || normalize(tag).includes("אהוב")));
   return {
     id: dish.id,
     name: dish.name || fallback?.name || "",
@@ -2568,6 +3163,12 @@ function normalizeDish(dish) {
     lastCooked: dish.lastCooked || "",
     wanted: wantedBy.length > 0,
     wantedBy,
+    image: dish.image || fallback?.image || "",
+    servings: Number(dish.servings || fallback?.servings || 0),
+    prepMinutes: Number(dish.prepMinutes || fallback?.prepMinutes || 0),
+    season: seasonLabelKeys[dish.season] ? dish.season : fallback?.season || "any",
+    favorite: Boolean(dish.favorite ?? fallbackFavorite),
+    updatedAt: dish.updatedAt || fallback?.updatedAt || UNKNOWN_UPDATED_AT,
   };
 }
 

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f4f6f5" />
     <title>Домашнее меню</title>
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body>
     <div class="app-shell">
@@ -132,6 +132,15 @@
         </div>
 
         <input type="hidden" id="dishId" />
+        <input type="hidden" id="dishImage" />
+
+        <label class="field">
+          <span data-i18n="dishForm.photo">Фото блюда</span>
+          <input id="dishPhoto" type="file" accept="image/*" />
+          <span class="field-help" data-i18n="dishForm.photoHelp">Фото сохраняется локально в сжатом виде.</span>
+        </label>
+
+        <div class="dish-photo-preview" id="dishPhotoPreview" aria-hidden="true"></div>
 
         <label class="field">
           <span data-i18n="dishForm.name">Название</span>
@@ -164,6 +173,33 @@
         <label class="field">
           <span data-i18n="dishForm.note">Заметка</span>
           <textarea id="dishNote" rows="2" placeholder="Например: удобно готовить на два дня" data-i18n-placeholder="dishForm.notePlaceholder"></textarea>
+        </label>
+
+        <div class="form-grid">
+          <label class="field">
+            <span data-i18n="dishForm.servings">Порции</span>
+            <input id="dishServings" type="number" min="1" max="24" inputmode="numeric" />
+          </label>
+          <label class="field">
+            <span data-i18n="dishForm.prepMinutes">Время готовки, мин</span>
+            <input id="dishPrepMinutes" type="number" min="0" max="600" inputmode="numeric" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span data-i18n="dishForm.season">Сезон</span>
+          <select id="dishSeason">
+            <option value="any" data-i18n="dishForm.seasonAny">Всегда</option>
+            <option value="summer" data-i18n="dishForm.seasonSummer">Лето</option>
+            <option value="winter" data-i18n="dishForm.seasonWinter">Зима</option>
+            <option value="weekend" data-i18n="dishForm.seasonWeekend">Выходные</option>
+            <option value="holiday" data-i18n="dishForm.seasonHoliday">Праздник</option>
+          </select>
+        </label>
+
+        <label class="check-field">
+          <input id="dishFavorite" type="checkbox" />
+          <span data-i18n="dishForm.favorite">Любимое блюдо</span>
         </label>
 
         <button class="primary-button full-width" type="submit" data-i18n="actions.save">Сохранить</button>
@@ -250,6 +286,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="app.js?v=8" type="module"></script>
+    <script src="app.js?v=9" type="module"></script>
   </body>
 </html>
