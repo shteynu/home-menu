@@ -1,5 +1,5 @@
-const CACHE_NAME = "home-menu-v4";
-const ASSETS = ["./", "index.html", "styles.css?v=4", "app.js?v=4", "manifest.webmanifest", "icon.svg"];
+const CACHE_NAME = "home-menu-v6";
+const ASSETS = ["./", "index.html", "styles.css?v=6", "app.js?v=6", "manifest.webmanifest", "icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));

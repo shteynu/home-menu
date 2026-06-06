@@ -1,17 +1,465 @@
 const STORAGE_KEY = "home-menu-state-v1";
 
+const FILTER_ALL = "Все";
+const FILTER_WISHES = "Желания";
+const FILTER_MEMBER_WANTS = "__member_wants__";
+const FILTER_LONG_AGO = "Давно не ели";
+
+const SUPPORTED_LANGUAGES = ["ru", "he"];
+
+const translations = {
+  ru: {
+    app: {
+      title: "Домашнее меню",
+      eyebrow: "Семейный планировщик еды",
+    },
+    language: {
+      label: "Язык",
+    },
+    actions: {
+      add: "Добавить",
+      close: "Закрыть",
+      copy: "Скопировать",
+      dish: "Блюдо",
+      fillWeek: "Заполнить неделю",
+      import: "Импорт",
+      nextWeek: "Следующая неделя",
+      previousWeek: "Предыдущая неделя",
+      resetDemo: "Вернуть демо-данные",
+      save: "Сохранить",
+    },
+    nav: {
+      label: "Основная навигация",
+      week: "Неделя",
+      dishes: "Блюда",
+      wishes: "Желания",
+      shopping: "Покупки",
+    },
+    week: {
+      current: "Эта неделя",
+      regular: "Неделя",
+      rangeFallback: "Воскресенье - суббота",
+      planned: "приемов пищи запланировано",
+      wishesInMenu: "желаний уже в меню",
+      emptySlots: "свободных слотов осталось",
+      emptySlot: "Пока пусто",
+      chooseDish: "Выбрать блюдо",
+      clear: "Очистить",
+      autoPick: "Подобрать",
+    },
+    dishes: {
+      eyebrow: "Банк домашних блюд",
+      title: "Блюда",
+      searchPlaceholder: "Поиск по названию, тегу или ингредиенту",
+      empty: "Нет блюд под этот фильтр. Добавьте новое блюдо или измените поиск.",
+      notCooked: "еще не готовили",
+      cookedToday: "готовили сегодня",
+      daysAgo: "{count} дн. назад",
+      wantedBy: "Хотят: {names}",
+      nobodyWants: "Пока никто не выбрал",
+      conflictFor: "Не подходит для {name}: {items}",
+      likesFor: "{name} любит: {items}",
+      noLimitsFor: "Без ограничений для {name}",
+      plan: "В меню",
+      selected: "Выбрано",
+      want: "Хочу",
+      edit: "Править",
+    },
+    filters: {
+      all: "Все",
+      wishes: "Желания",
+      memberWants: "{name} хочет",
+      longAgo: "Давно не ели",
+      quickFast: "Быстро",
+      quickKids: "Дети любят",
+    },
+    wishes: {
+      eyebrow: "Что хочется семье",
+      title: "Желания",
+      longReason: "Давно не было в меню",
+      empty: "Пока нет желаний. Отметьте блюда кнопкой “Хочу”.",
+    },
+    shopping: {
+      eyebrow: "Из меню недели",
+      title: "Покупки",
+      summary: "<strong>{toBuy}</strong> купить · <strong>{pantry}</strong> уже дома · <strong>{done}</strong> отмечено.",
+      empty: "Добавьте блюда в неделю, и список покупок появится автоматически.",
+      inPantry: "есть дома",
+      home: "Дома",
+      pantryEyebrow: "Не покупать лишнее",
+      pantryTitle: "Запасы дома",
+      pantryPlaceholder: "молоко, рис, яйца",
+      emptyPantry: "Список пуст",
+    },
+    backup: {
+      eyebrow: "Перенос между телефонами",
+      title: "Резервная копия",
+      export: "Скачать backup",
+      import: "Загрузить backup",
+      help: "Это временная синхронизация без облака: файл можно отправить себе и загрузить на другом телефоне.",
+    },
+    family: {
+      eyebrow: "Кто выбирает",
+      title: "Семья",
+      namePlaceholder: "Имя",
+      add: "Добавить",
+      remove: "Убрать {name}",
+      likes: "{name} любит",
+      likesPlaceholder: "дети любят, быстро, овощи",
+      avoids: "Нельзя / не любит",
+      avoidsPlaceholder: "рыба, молочное, острое",
+      savePrefs: "Сохранить предпочтения",
+    },
+    profile: {
+      family: "Семья",
+      kids: "Дети",
+      adults: "Взрослые",
+      fallback: "Профиль",
+    },
+    dishForm: {
+      eyebrow: "Новая карточка",
+      addTitle: "Добавить блюдо",
+      editTitle: "Редактировать блюдо",
+      name: "Название",
+      namePlaceholder: "Например: куриный суп",
+      category: "Категория",
+      tags: "Теги через запятую",
+      tagsPlaceholder: "быстро, дети любят, мясное",
+      ingredients: "Ингредиенты через запятую",
+      ingredientsPlaceholder: "курица, морковь, картофель",
+      note: "Заметка",
+      notePlaceholder: "Например: удобно готовить на два дня",
+    },
+    import: {
+      eyebrow: "Быстрое наполнение",
+      title: "Импорт блюд",
+      text: "Текст из фото или списка",
+      textPlaceholder: "суп\nкотлеты\nблины",
+      category: "Категория для новых блюд",
+      parse: "Разобрать",
+      addSelected: "Добавить выбранные",
+      empty: "Нет кандидатов",
+    },
+    ocr: {
+      photo: "Фото списка",
+      languages: "Языки OCR",
+      langAll: "Русский + иврит + английский",
+      langRu: "Русский + английский",
+      langHe: "Иврит + английский",
+      langEn: "Английский",
+      run: "Распознать фото",
+      statusIdle: "Фото распознается локально в браузере. После OCR проверьте текст вручную.",
+      choosePhoto: "Выберите фото",
+      loading: "Загружаю OCR...",
+      recognizing: "Распознаю: {name}",
+      done: "Готово. Найдено кандидатов: {count}. Проверьте текст перед добавлением.",
+      failedStatus: "OCR не сработал. Можно вставить текст вручную.",
+      failedToast: "OCR не сработал",
+    },
+    slot: {
+      context: "Выбор блюда",
+      title: "Что поставить?",
+      searchPlaceholder: "Найти блюдо",
+      conflict: "Не подходит: {items}",
+      match: "Подходит: {items}",
+      noLimits: "Без ограничений",
+      empty: "Такого блюда пока нет.",
+    },
+    category: {
+      main: "Основное",
+      breakfast: "Завтрак",
+      soup: "Суп",
+      salad: "Салат",
+      side: "Гарнир",
+      snack: "Перекус",
+      dessert: "Десерт",
+    },
+    meal: {
+      breakfast: "Завтрак",
+      lunch: "Обед",
+      dinner: "Ужин",
+    },
+    days: {
+      long: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
+      short: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+    },
+    groups: {
+      vegetables: "Овощи и фрукты",
+      meat: "Мясо и рыба",
+      dairy: "Молочное",
+      pantry: "Бакалея",
+      other: "Остальное",
+    },
+    tags: {
+      none: "без тегов",
+      import: "импорт",
+    },
+    notes: {
+      imported: "Добавлено из списка.",
+    },
+    toasts: {
+      dishSaved: "Блюдо сохранено",
+      noNewDishes: "Новых блюд нет",
+      dishesAdded: "Добавлено блюд: {count}",
+      addedToMenu: "Добавлено в меню",
+      dayFilled: "День заполнен",
+      weekFilled: "Неделя заполнена",
+      noFreeSlots: "В неделе нет свободных слотов",
+      emptyList: "Список пока пустой",
+      listCopied: "Список скопирован",
+      copyFailed: "Не получилось скопировать",
+      profileExists: "Такой профиль уже есть",
+      prefsSaved: "Предпочтения сохранены",
+      backupExported: "Backup скачан",
+      backupImported: "Backup загружен",
+      backupFailed: "Не удалось прочитать backup",
+      demoReset: "Демо-данные восстановлены",
+    },
+  },
+  he: {
+    app: {
+      title: "תפריט ביתי",
+      eyebrow: "מתכנן ארוחות משפחתי",
+    },
+    language: {
+      label: "שפה",
+    },
+    actions: {
+      add: "הוספה",
+      close: "סגירה",
+      copy: "העתקה",
+      dish: "מנה",
+      fillWeek: "למלא שבוע",
+      import: "יבוא",
+      nextWeek: "השבוע הבא",
+      previousWeek: "השבוע הקודם",
+      resetDemo: "איפוס נתוני הדגמה",
+      save: "שמירה",
+    },
+    nav: {
+      label: "ניווט ראשי",
+      week: "שבוע",
+      dishes: "מנות",
+      wishes: "רצונות",
+      shopping: "קניות",
+    },
+    week: {
+      current: "השבוע",
+      regular: "שבוע",
+      rangeFallback: "ראשון - שבת",
+      planned: "ארוחות מתוכננות",
+      wishesInMenu: "רצונות כבר בתפריט",
+      emptySlots: "מקומות פנויים נשארו",
+      emptySlot: "עדיין ריק",
+      chooseDish: "בחירת מנה",
+      clear: "ניקוי",
+      autoPick: "בחירה אוטומטית",
+    },
+    dishes: {
+      eyebrow: "מאגר מנות ביתיות",
+      title: "מנות",
+      searchPlaceholder: "חיפוש לפי שם, תגית או מרכיב",
+      empty: "אין מנות שמתאימות למסנן הזה. אפשר להוסיף מנה או לשנות חיפוש.",
+      notCooked: "עדיין לא הכנו",
+      cookedToday: "הוכן היום",
+      daysAgo: "לפני {count} ימים",
+      wantedBy: "רוצים: {names}",
+      nobodyWants: "אף אחד עדיין לא בחר",
+      conflictFor: "לא מתאים ל{name}: {items}",
+      likesFor: "{name} אוהב/ת: {items}",
+      noLimitsFor: "אין הגבלות ל{name}",
+      plan: "לתפריט",
+      selected: "נבחר",
+      want: "רוצה",
+      edit: "עריכה",
+    },
+    filters: {
+      all: "הכל",
+      wishes: "רצונות",
+      memberWants: "רצונות של {name}",
+      longAgo: "לא אכלנו מזמן",
+      quickFast: "מהיר",
+      quickKids: "ילדים אוהבים",
+    },
+    wishes: {
+      eyebrow: "מה מתחשק למשפחה",
+      title: "רצונות",
+      longReason: "לא היה בתפריט הרבה זמן",
+      empty: "עדיין אין רצונות. סמנו מנות עם הכפתור \"רוצה\".",
+    },
+    shopping: {
+      eyebrow: "מתוך תפריט השבוע",
+      title: "קניות",
+      summary: "<strong>{toBuy}</strong> לקנות · <strong>{pantry}</strong> כבר בבית · <strong>{done}</strong> סומנו.",
+      empty: "הוסיפו מנות לשבוע ורשימת הקניות תופיע אוטומטית.",
+      inPantry: "יש בבית",
+      home: "בבית",
+      pantryEyebrow: "לא לקנות מיותר",
+      pantryTitle: "מלאי בבית",
+      pantryPlaceholder: "חלב, אורז, ביצים",
+      emptyPantry: "הרשימה ריקה",
+    },
+    backup: {
+      eyebrow: "מעבר בין טלפונים",
+      title: "גיבוי",
+      export: "הורדת backup",
+      import: "טעינת backup",
+      help: "זה סנכרון זמני בלי ענן: אפשר לשלוח את הקובץ לעצמכם ולטעון בטלפון אחר.",
+    },
+    family: {
+      eyebrow: "מי בוחר",
+      title: "משפחה",
+      namePlaceholder: "שם",
+      add: "הוספה",
+      remove: "הסרה של {name}",
+      likes: "{name} אוהב/ת",
+      likesPlaceholder: "ילדים אוהבים, מהיר, ירקות",
+      avoids: "אסור / לא אוהב/ת",
+      avoidsPlaceholder: "דגים, חלבי, חריף",
+      savePrefs: "שמירת העדפות",
+    },
+    profile: {
+      family: "משפחה",
+      kids: "ילדים",
+      adults: "מבוגרים",
+      fallback: "פרופיל",
+    },
+    dishForm: {
+      eyebrow: "כרטיס חדש",
+      addTitle: "הוספת מנה",
+      editTitle: "עריכת מנה",
+      name: "שם",
+      namePlaceholder: "לדוגמה: מרק עוף",
+      category: "קטגוריה",
+      tags: "תגיות מופרדות בפסיקים",
+      tagsPlaceholder: "מהיר, ילדים אוהבים, בשרי",
+      ingredients: "מרכיבים מופרדים בפסיקים",
+      ingredientsPlaceholder: "עוף, גזר, תפוחי אדמה",
+      note: "הערה",
+      notePlaceholder: "לדוגמה: נוח להכין ליומיים",
+    },
+    import: {
+      eyebrow: "מילוי מהיר",
+      title: "יבוא מנות",
+      text: "טקסט מתוך צילום או רשימה",
+      textPlaceholder: "מרק\nקציצות\nפנקייק",
+      category: "קטגוריה למנות חדשות",
+      parse: "פירוק",
+      addSelected: "הוספת המסומנות",
+      empty: "אין מועמדים",
+    },
+    ocr: {
+      photo: "צילום רשימה",
+      languages: "שפות OCR",
+      langAll: "רוסית + עברית + אנגלית",
+      langRu: "רוסית + אנגלית",
+      langHe: "עברית + אנגלית",
+      langEn: "אנגלית",
+      run: "זיהוי צילום",
+      statusIdle: "הצילום מזוהה מקומית בדפדפן. אחרי OCR כדאי לבדוק את הטקסט ידנית.",
+      choosePhoto: "בחרו צילום",
+      loading: "טוען OCR...",
+      recognizing: "מזהה: {name}",
+      done: "סיום. נמצאו מועמדים: {count}. בדקו את הטקסט לפני ההוספה.",
+      failedStatus: "OCR לא הצליח. אפשר להדביק טקסט ידנית.",
+      failedToast: "OCR לא הצליח",
+    },
+    slot: {
+      context: "בחירת מנה",
+      title: "מה לשים?",
+      searchPlaceholder: "חיפוש מנה",
+      conflict: "לא מתאים: {items}",
+      match: "מתאים: {items}",
+      noLimits: "אין הגבלות",
+      empty: "מנה כזאת עדיין לא קיימת.",
+    },
+    category: {
+      main: "עיקרית",
+      breakfast: "ארוחת בוקר",
+      soup: "מרק",
+      salad: "סלט",
+      side: "תוספת",
+      snack: "נשנוש",
+      dessert: "קינוח",
+    },
+    meal: {
+      breakfast: "ארוחת בוקר",
+      lunch: "צהריים",
+      dinner: "ערב",
+    },
+    days: {
+      long: ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"],
+      short: ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "שבת"],
+    },
+    groups: {
+      vegetables: "ירקות ופירות",
+      meat: "בשר ודגים",
+      dairy: "חלבי",
+      pantry: "מזווה",
+      other: "אחר",
+    },
+    tags: {
+      none: "בלי תגיות",
+      import: "יבוא",
+    },
+    notes: {
+      imported: "נוסף מתוך רשימה.",
+    },
+    toasts: {
+      dishSaved: "המנה נשמרה",
+      noNewDishes: "אין מנות חדשות",
+      dishesAdded: "נוספו מנות: {count}",
+      addedToMenu: "נוסף לתפריט",
+      dayFilled: "היום מולא",
+      weekFilled: "השבוע מולא",
+      noFreeSlots: "אין מקומות פנויים בשבוע",
+      emptyList: "הרשימה עדיין ריקה",
+      listCopied: "הרשימה הועתקה",
+      copyFailed: "לא הצלחנו להעתיק",
+      profileExists: "פרופיל כזה כבר קיים",
+      prefsSaved: "ההעדפות נשמרו",
+      backupExported: "Backup ירד",
+      backupImported: "Backup נטען",
+      backupFailed: "לא הצלחנו לקרוא backup",
+      demoReset: "נתוני ההדגמה שוחזרו",
+    },
+  },
+};
+
+const categoryLabelKeys = {
+  Основное: "category.main",
+  Завтрак: "category.breakfast",
+  Суп: "category.soup",
+  Салат: "category.salad",
+  Гарнир: "category.side",
+  Перекус: "category.snack",
+  Десерт: "category.dessert",
+};
+
+const groupLabelKeys = {
+  "Овощи и фрукты": "groups.vegetables",
+  "Мясо и рыба": "groups.meat",
+  Молочное: "groups.dairy",
+  Бакалея: "groups.pantry",
+  Остальное: "groups.other",
+};
+
+const profileLabelKeys = {
+  "member-family": { defaultName: "Семья", key: "profile.family" },
+  "member-kids": { defaultName: "Дети", key: "profile.kids" },
+  "member-adults": { defaultName: "Взрослые", key: "profile.adults" },
+};
+
 const mealTypes = [
-  { id: "breakfast", label: "Завтрак" },
-  { id: "lunch", label: "Обед" },
-  { id: "dinner", label: "Ужин" },
+  { id: "breakfast", labelKey: "meal.breakfast" },
+  { id: "lunch", labelKey: "meal.lunch" },
+  { id: "dinner", labelKey: "meal.dinner" },
 ];
 
-const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-const dayShort = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-
 const defaultState = {
+  language: "ru",
   currentWeekStart: getWeekStart(new Date()).toISOString(),
-  activeFilter: "Все",
+  activeFilter: FILTER_ALL,
   activeMemberId: "member-family",
   dishSearch: "",
   importText: "",
@@ -149,6 +597,7 @@ const els = {
   quickPicks: document.querySelector("#quickPicks"),
   slotDishList: document.querySelector("#slotDishList"),
   toast: document.querySelector("#toast"),
+  languageOptions: document.querySelectorAll("[data-language-option]"),
 };
 
 document.querySelectorAll(".nav-item").forEach((button) => {
@@ -166,6 +615,10 @@ document.querySelector("#openImportButton").addEventListener("click", openImport
 document.querySelector("#autoPlanButton").addEventListener("click", autoPlanWeek);
 document.querySelector("#copyShoppingButton").addEventListener("click", copyShoppingList);
 document.querySelector("#resetDemoButton").addEventListener("click", resetDemo);
+
+els.languageOptions.forEach((button) => {
+  button.addEventListener("click", () => setLanguage(button.dataset.languageOption));
+});
 
 els.dishSearch.addEventListener("input", (event) => {
   state.dishSearch = event.target.value;
@@ -208,12 +661,42 @@ if ("serviceWorker" in navigator) {
 render();
 
 function render() {
+  applyLanguage();
   els.dishSearch.value = state.dishSearch;
   renderWeek();
   renderDishes();
   renderFamilyPanel();
   renderWishes();
   renderShopping();
+}
+
+function setLanguage(language) {
+  if (!SUPPORTED_LANGUAGES.includes(language) || state.language === language) return;
+  state.language = language;
+  saveState();
+  render();
+}
+
+function applyLanguage() {
+  document.documentElement.lang = state.language;
+  document.documentElement.dir = getDirection();
+  document.title = t("app.title");
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.setAttribute("placeholder", t(element.dataset.i18nPlaceholder));
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    element.setAttribute("title", t(element.dataset.i18nTitle));
+  });
+  els.languageOptions.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.languageOption === state.language);
+  });
 }
 
 function setView(view) {
@@ -229,7 +712,7 @@ function setView(view) {
 function renderWeek() {
   const weekStart = new Date(state.currentWeekStart);
   const weekEnd = addDays(weekStart, 6);
-  els.weekTitle.textContent = isCurrentWeek(weekStart) ? "Эта неделя" : "Неделя";
+  els.weekTitle.textContent = isCurrentWeek(weekStart) ? t("week.current") : t("week.regular");
   els.weekRange.textContent = `${formatDate(weekStart)} - ${formatDate(weekEnd)}`;
 
   const plannedDishIds = getWeekPlanEntries(weekStart)
@@ -241,36 +724,37 @@ function renderWeek() {
   const emptySlots = 7 * mealTypes.length - plannedDishIds.length;
 
   els.weekInsights.innerHTML = [
-    insight(plannedDishIds.length, "приемов пищи запланировано"),
-    insight(wantedTotal ? `${wantedPlanned}/${wantedTotal}` : "0", "желаний уже в меню"),
-    insight(emptySlots, "свободных слотов осталось"),
+    insight(plannedDishIds.length, t("week.planned")),
+    insight(wantedTotal ? `${wantedPlanned}/${wantedTotal}` : "0", t("week.wishesInMenu")),
+    insight(emptySlots, t("week.emptySlots")),
   ].join("");
 
-  els.weekGrid.innerHTML = dayNames
-    .map((dayName, dayIndex) => {
+  els.weekGrid.innerHTML = Array.from({ length: 7 }, (_, dayIndex) => {
+      const dayName = getDayName(dayIndex);
       const date = addDays(weekStart, dayIndex);
       const dateKey = toDateKey(date);
       const slots = mealTypes
         .map((meal) => {
+          const mealLabel = t(meal.labelKey);
           const dishId = state.plans[dateKey]?.[meal.id];
           const dish = findDish(dishId);
           return `
             <div class="meal-slot">
-              <div class="slot-label">${meal.label}</div>
+              <div class="slot-label">${mealLabel}</div>
               <div class="slot-content">
                 ${
                   dish
                     ? `<div class="planned-dish">
                         <strong>${escapeHtml(dish.name)}</strong>
-                        <span>${dish.category} · ${formatTags(dish.tags)}</span>
+                        <span>${displayCategory(dish.category)} · ${formatTags(dish.tags)}</span>
                       </div>`
-                    : `<div class="empty-slot">Пока пусто</div>`
+                    : `<div class="empty-slot">${t("week.emptySlot")}</div>`
                 }
                 <div class="slot-actions">
-                  <button class="mini-button" type="button" data-slot-add="${dateKey}:${meal.id}" aria-label="Выбрать блюдо">＋</button>
+                  <button class="mini-button" type="button" data-slot-add="${dateKey}:${meal.id}" aria-label="${t("week.chooseDish")}">＋</button>
                   ${
                     dish
-                      ? `<button class="mini-button is-danger" type="button" data-slot-clear="${dateKey}:${meal.id}" aria-label="Очистить">×</button>`
+                      ? `<button class="mini-button is-danger" type="button" data-slot-clear="${dateKey}:${meal.id}" aria-label="${t("week.clear")}">×</button>`
                       : ""
                   }
                 </div>
@@ -287,7 +771,7 @@ function renderWeek() {
               <h3>${dayName}</h3>
               <p>${formatDate(date)}</p>
             </div>
-            <button class="mini-button" type="button" data-day-auto="${dateKey}">Подобрать</button>
+            <button class="mini-button" type="button" data-day-auto="${dateKey}">${t("week.autoPick")}</button>
           </div>
           <div class="meal-slots">${slots}</div>
         </article>
@@ -312,7 +796,7 @@ function renderDishes() {
 
   els.dishList.innerHTML = dishes.length
     ? dishes.map(renderDishCard).join("")
-    : `<div class="empty-state">Нет блюд под этот фильтр. Добавьте новое блюдо или измените поиск.</div>`;
+    : `<div class="empty-state">${t("dishes.empty")}</div>`;
 
   els.dishList.querySelectorAll("[data-edit-dish]").forEach((button) => {
     button.addEventListener("click", () => openDishForm(button.dataset.editDish));
@@ -328,17 +812,20 @@ function renderDishes() {
 function renderDishFilters() {
   const activeMember = getActiveMember();
   const filters = [
-    "Все",
-    "Желания",
-    `${activeMember.name} хочет`,
-    "Давно не ели",
-    ...new Set(state.dishes.map((dish) => dish.category)),
+    { value: FILTER_ALL, label: t("filters.all") },
+    { value: FILTER_WISHES, label: t("filters.wishes") },
+    { value: FILTER_MEMBER_WANTS, label: formatMessage("filters.memberWants", { name: displayProfileName(activeMember) }) },
+    { value: FILTER_LONG_AGO, label: t("filters.longAgo") },
+    ...[...new Set(state.dishes.map((dish) => dish.category))].map((category) => ({
+      value: category,
+      label: displayCategory(category),
+    })),
   ];
   els.dishFilters.innerHTML = filters
     .map(
       (filter) => `
-        <button class="chip ${state.activeFilter === filter ? "is-active" : ""}" type="button" data-filter="${escapeHtml(filter)}">
-          ${escapeHtml(filter)}
+        <button class="chip ${state.activeFilter === filter.value ? "is-active" : ""}" type="button" data-filter="${escapeHtml(filter.value)}">
+          ${escapeHtml(filter.label)}
         </button>
       `,
     )
@@ -355,24 +842,26 @@ function renderDishFilters() {
 
 function renderDishCard(dish) {
   const daysAgo = getDaysAgo(dish.lastCooked);
-  const cookedLabel = daysAgo === null ? "еще не готовили" : daysAgo === 0 ? "готовили сегодня" : `${daysAgo} дн. назад`;
+  const cookedLabel =
+    daysAgo === null ? t("dishes.notCooked") : daysAgo === 0 ? t("dishes.cookedToday") : formatMessage("dishes.daysAgo", { count: daysAgo });
   const wantedBy = getWantedBy(dish);
   const activeWants = wantedBy.includes(state.activeMemberId);
-  const wantedLabel = wantedBy.length ? `Хотят: ${formatProfileNames(wantedBy)}` : "Пока никто не выбрал";
+  const activeMemberName = displayProfileName(getActiveMember());
+  const wantedLabel = wantedBy.length ? formatMessage("dishes.wantedBy", { names: formatProfileNames(wantedBy) }) : t("dishes.nobodyWants");
   const conflicts = getProfileConflicts(dish);
   const matches = getProfileMatches(dish);
   const compatibilityLabel = conflicts.length
-    ? `Не подходит для ${getActiveMember().name}: ${conflicts.join(", ")}`
+    ? formatMessage("dishes.conflictFor", { name: activeMemberName, items: conflicts.join(", ") })
     : matches.length
-      ? `${getActiveMember().name} любит: ${matches.join(", ")}`
-      : `Без ограничений для ${getActiveMember().name}`;
+      ? formatMessage("dishes.likesFor", { name: activeMemberName, items: matches.join(", ") })
+      : formatMessage("dishes.noLimitsFor", { name: activeMemberName });
   return `
     <article class="dish-card">
       <div class="dish-main">
         <div class="dish-art" aria-hidden="true">${dish.name.slice(0, 1).toUpperCase()}</div>
         <div class="dish-meta">
           <h3>${escapeHtml(dish.name)}</h3>
-          <p class="dish-note">${escapeHtml(dish.category)} · ${cookedLabel}</p>
+          <p class="dish-note">${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(cookedLabel)}</p>
           <p class="dish-note">${escapeHtml(wantedLabel)}</p>
           <p class="dish-note ${conflicts.length ? "warn-line" : "ok-line"}">${escapeHtml(compatibilityLabel)}</p>
           <p class="dish-ingredients">${escapeHtml(dish.ingredients.join(", "))}</p>
@@ -380,9 +869,9 @@ function renderDishCard(dish) {
         </div>
       </div>
       <div class="dish-actions">
-        <button type="button" data-plan-dish="${dish.id}">В меню</button>
-        <button class="${activeWants ? "is-selected" : ""}" type="button" data-want-dish="${dish.id}">${activeWants ? "Выбрано" : "Хочу"}</button>
-        <button type="button" data-edit-dish="${dish.id}">Править</button>
+        <button type="button" data-plan-dish="${dish.id}">${t("dishes.plan")}</button>
+        <button class="${activeWants ? "is-selected" : ""}" type="button" data-want-dish="${dish.id}">${activeWants ? t("dishes.selected") : t("dishes.want")}</button>
+        <button type="button" data-edit-dish="${dish.id}">${t("dishes.edit")}</button>
       </div>
     </article>
   `;
@@ -390,12 +879,13 @@ function renderDishCard(dish) {
 
 function renderFamilyPanel() {
   const activeProfile = getActiveMember();
+  const activeProfileName = displayProfileName(activeProfile);
   els.familyPanel.innerHTML = `
     <section class="manage-panel">
       <div class="panel-heading">
         <div>
-          <p class="eyebrow">Кто выбирает</p>
-          <h3>Семья</h3>
+          <p class="eyebrow">${t("family.eyebrow")}</p>
+          <h3>${t("family.title")}</h3>
         </div>
         <span class="panel-count">${state.profiles.length}</span>
       </div>
@@ -404,15 +894,15 @@ function renderFamilyPanel() {
           .map(
             (profile) => `
               <button class="member-pill ${profile.id === state.activeMemberId ? "is-active" : ""}" type="button" data-member-select="${profile.id}">
-                ${escapeHtml(profile.name)}
+                ${escapeHtml(displayProfileName(profile))}
               </button>
             `,
           )
           .join("")}
       </div>
       <form class="inline-form" id="memberForm">
-        <input id="memberName" type="text" placeholder="Имя" autocomplete="off" />
-        <button class="secondary-button" type="submit">Добавить</button>
+        <input id="memberName" type="text" placeholder="${escapeHtml(t("family.namePlaceholder"))}" autocomplete="off" />
+        <button class="secondary-button" type="submit">${t("family.add")}</button>
       </form>
       <div class="member-actions">
         ${state.profiles
@@ -420,7 +910,7 @@ function renderFamilyPanel() {
           .map(
             (profile) => `
               <button class="text-button" type="button" data-member-remove="${profile.id}">
-                Убрать ${escapeHtml(profile.name)}
+                ${escapeHtml(formatMessage("family.remove", { name: displayProfileName(profile) }))}
               </button>
             `,
           )
@@ -428,14 +918,14 @@ function renderFamilyPanel() {
       </div>
       <form class="preference-form" id="profilePrefsForm">
         <label class="field">
-          ${escapeHtml(activeProfile.name)} любит
-          <input id="profileLikes" type="text" value="${escapeHtml(activeProfile.likes.join(", "))}" placeholder="дети любят, быстро, овощи" />
+          ${escapeHtml(formatMessage("family.likes", { name: activeProfileName }))}
+          <input id="profileLikes" type="text" value="${escapeHtml(activeProfile.likes.join(", "))}" placeholder="${escapeHtml(t("family.likesPlaceholder"))}" />
         </label>
         <label class="field">
-          Нельзя / не любит
-          <input id="profileAvoids" type="text" value="${escapeHtml(activeProfile.avoids.join(", "))}" placeholder="рыба, молочное, острое" />
+          ${escapeHtml(t("family.avoids"))}
+          <input id="profileAvoids" type="text" value="${escapeHtml(activeProfile.avoids.join(", "))}" placeholder="${escapeHtml(t("family.avoidsPlaceholder"))}" />
         </label>
-        <button class="secondary-button full-width" type="submit">Сохранить предпочтения</button>
+        <button class="secondary-button full-width" type="submit">${t("family.savePrefs")}</button>
       </form>
     </section>
   `;
@@ -443,7 +933,7 @@ function renderFamilyPanel() {
   els.familyPanel.querySelectorAll("[data-member-select]").forEach((button) => {
     button.addEventListener("click", () => {
       state.activeMemberId = button.dataset.memberSelect;
-      state.activeFilter = "Все";
+      state.activeFilter = FILTER_ALL;
       saveState();
       render();
     });
@@ -473,30 +963,30 @@ function renderWishes() {
     ? wished
         .map((dish) => {
           const wantedBy = getWantedBy(dish);
-          const reason = wantedBy.length ? `Хотят: ${formatProfileNames(wantedBy)}` : "Давно не было в меню";
+          const reason = wantedBy.length ? formatMessage("dishes.wantedBy", { names: formatProfileNames(wantedBy) }) : t("wishes.longReason");
           return `
             <article class="wish-card wish-card-stacked">
               <div>
                 <h3>${escapeHtml(dish.name)}</h3>
-                <p>${reason} · ${formatTags(dish.tags)}</p>
+                <p>${escapeHtml(reason)} · ${escapeHtml(formatTags(dish.tags))}</p>
               </div>
               <div class="person-toggles">
                 ${state.profiles
                   .map(
                     (profile) => `
                       <button class="toggle-pill ${wantedBy.includes(profile.id) ? "is-active" : ""}" type="button" data-wish-person="${dish.id}:${profile.id}">
-                        ${escapeHtml(profile.name)}
+                        ${escapeHtml(displayProfileName(profile))}
                       </button>
                     `,
                   )
                   .join("")}
               </div>
-              <button class="secondary-button full-width" type="button" data-plan-dish="${dish.id}">В меню</button>
+              <button class="secondary-button full-width" type="button" data-plan-dish="${dish.id}">${t("dishes.plan")}</button>
             </article>
           `;
         })
         .join("")
-    : `<div class="empty-state">Пока нет желаний. Отметьте блюда кнопкой “Хочу”.</div>`;
+    : `<div class="empty-state">${t("wishes.empty")}</div>`;
 
   els.wishBoard.querySelectorAll("[data-plan-dish]").forEach((button) => {
     button.addEventListener("click", () => planDishSoon(button.dataset.planDish));
@@ -522,7 +1012,7 @@ function renderShopping() {
   );
 
   els.shoppingSummary.innerHTML = `
-    <p><strong>${toBuyItems.length}</strong> купить · <strong>${pantryCount}</strong> уже дома · <strong>${doneCount}</strong> отмечено.</p>
+    <p>${formatMessage("shopping.summary", { toBuy: toBuyItems.length, pantry: pantryCount, done: doneCount })}</p>
   `;
 
   els.shoppingList.innerHTML = groups.length
@@ -530,13 +1020,13 @@ function renderShopping() {
         .map(
           (group) => `
             <section class="shopping-group">
-              <h3>${escapeHtml(group.name)}</h3>
+              <h3>${escapeHtml(displayIngredientGroup(group.name))}</h3>
               ${group.items.map(renderShoppingItem).join("")}
             </section>
           `,
         )
         .join("")
-    : `<div class="empty-state">Добавьте блюда в неделю, и список покупок появится автоматически.</div>`;
+    : `<div class="empty-state">${t("shopping.empty")}</div>`;
 
   els.shoppingList.querySelectorAll("[data-toggle-shopping]").forEach((button) => {
     button.addEventListener("click", () => toggleShoppingDone(button.dataset.toggleShopping));
@@ -556,13 +1046,13 @@ function renderShoppingItem(item) {
     <div class="shopping-item ${statusClass}">
       <div>
         <strong class="shopping-name">${escapeHtml(item.name)}</strong>
-        <span class="shopping-source">${escapeHtml([...item.sources].join(", "))}${item.inPantry ? " · есть дома" : ""}</span>
+        <span class="shopping-source">${escapeHtml([...item.sources].join(", "))}${item.inPantry ? ` · ${t("shopping.inPantry")}` : ""}</span>
       </div>
       <div class="shopping-buttons">
         ${
           item.inPantry
             ? `<button class="mini-button" type="button" data-remove-pantry="${escapeHtml(item.key)}">↺</button>`
-            : `<button class="mini-button" type="button" data-add-pantry="${escapeHtml(item.name)}">Дома</button>
+            : `<button class="mini-button" type="button" data-add-pantry="${escapeHtml(item.name)}">${t("shopping.home")}</button>
                <button class="mini-button" type="button" data-toggle-shopping="${escapeHtml(item.key)}">${isDone ? "↺" : "✓"}</button>`
         }
       </div>
@@ -575,14 +1065,14 @@ function renderPantryPanel() {
     <section class="manage-panel pantry-panel">
       <div class="panel-heading">
         <div>
-          <p class="eyebrow">Не покупать лишнее</p>
-          <h3>Запасы дома</h3>
+          <p class="eyebrow">${t("shopping.pantryEyebrow")}</p>
+          <h3>${t("shopping.pantryTitle")}</h3>
         </div>
         <span class="panel-count">${state.pantry.length}</span>
       </div>
       <form class="inline-form" id="pantryForm">
-        <input id="pantryInput" type="text" placeholder="молоко, рис, яйца" autocomplete="off" />
-        <button class="secondary-button" type="submit">Добавить</button>
+        <input id="pantryInput" type="text" placeholder="${escapeHtml(t("shopping.pantryPlaceholder"))}" autocomplete="off" />
+        <button class="secondary-button" type="submit">${t("actions.add")}</button>
       </form>
       <div class="pantry-chips">
         ${
@@ -596,7 +1086,7 @@ function renderPantryPanel() {
                   `,
                 )
                 .join("")
-            : `<span class="muted-line">Список пуст</span>`
+            : `<span class="muted-line">${t("shopping.emptyPantry")}</span>`
         }
       </div>
     </section>
@@ -617,19 +1107,19 @@ function renderBackupPanel() {
     <section class="manage-panel">
       <div class="panel-heading">
         <div>
-          <p class="eyebrow">Перенос между телефонами</p>
-          <h3>Резервная копия</h3>
+          <p class="eyebrow">${t("backup.eyebrow")}</p>
+          <h3>${t("backup.title")}</h3>
         </div>
         <span class="panel-count">${state.dishes.length}</span>
       </div>
       <div class="backup-actions">
-        <button class="secondary-button" id="exportBackupButton" type="button">Скачать backup</button>
+        <button class="secondary-button" id="exportBackupButton" type="button">${t("backup.export")}</button>
         <label class="secondary-button file-button">
-          Загрузить backup
+          ${t("backup.import")}
           <input id="backupFileInput" type="file" accept="application/json,.json" />
         </label>
       </div>
-      <p class="muted-line">Это временная синхронизация без облака: файл можно отправить себе и загрузить на другом телефоне.</p>
+      <p class="muted-line">${t("backup.help")}</p>
     </section>
   `;
 
@@ -639,7 +1129,7 @@ function renderBackupPanel() {
 
 function openDishForm(dishId = "") {
   const dish = findDish(dishId);
-  els.dishDialogTitle.textContent = dish ? "Редактировать блюдо" : "Добавить блюдо";
+  els.dishDialogTitle.textContent = dish ? t("dishForm.editTitle") : t("dishForm.addTitle");
   document.querySelector("#dishId").value = dish?.id ?? "";
   document.querySelector("#dishName").value = dish?.name ?? "";
   document.querySelector("#dishCategory").value = dish?.category ?? "Основное";
@@ -672,7 +1162,7 @@ function saveDishFromForm() {
 
   saveState();
   els.dishDialog.close();
-  showToast("Блюдо сохранено");
+  showToast(t("toasts.dishSaved"));
   render();
 }
 
@@ -695,7 +1185,7 @@ function renderImportCandidates() {
           `,
         )
         .join("")
-    : `<div class="empty-state">Нет кандидатов</div>`;
+    : `<div class="empty-state">${t("import.empty")}</div>`;
 }
 
 function saveImportedDishes() {
@@ -708,35 +1198,35 @@ function saveImportedDishes() {
       id: `dish-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       name,
       category: document.querySelector("#importCategory").value,
-      tags: ["импорт"],
+      tags: [t("tags.import")],
       ingredients: [],
-      note: "Добавлено из списка.",
+      note: t("notes.imported"),
       lastCooked: "",
       wanted: false,
       wantedBy: [],
     }));
 
   if (!newDishes.length) {
-    showToast("Новых блюд нет");
+    showToast(t("toasts.noNewDishes"));
     return;
   }
 
   state.dishes = [...newDishes, ...state.dishes];
   saveState();
   els.importDialog.close();
-  showToast(`Добавлено блюд: ${newDishes.length}`);
+  showToast(formatMessage("toasts.dishesAdded", { count: newDishes.length }));
   render();
 }
 
 async function runOcrImport() {
   const files = [...els.ocrFileInput.files];
   if (!files.length) {
-    showToast("Выберите фото");
+    showToast(t("ocr.choosePhoto"));
     return;
   }
 
   const languages = els.ocrLanguage.value;
-  els.ocrStatus.textContent = "Загружаю OCR...";
+  els.ocrStatus.textContent = t("ocr.loading");
   document.querySelector("#runOcrButton").disabled = true;
 
   let worker;
@@ -752,7 +1242,7 @@ async function runOcrImport() {
 
     const texts = [];
     for (const file of files) {
-      els.ocrStatus.textContent = `Распознаю: ${file.name}`;
+      els.ocrStatus.textContent = formatMessage("ocr.recognizing", { name: file.name });
       const {
         data: { text },
       } = await worker.recognize(file);
@@ -764,10 +1254,10 @@ async function runOcrImport() {
     state.importText = els.importText.value;
     importCandidates = parseImportCandidates(els.importText.value);
     renderImportCandidates();
-    els.ocrStatus.textContent = `Готово. Найдено кандидатов: ${importCandidates.length}. Проверьте текст перед добавлением.`;
+    els.ocrStatus.textContent = formatMessage("ocr.done", { count: importCandidates.length });
   } catch (error) {
-    els.ocrStatus.textContent = "OCR не сработал. Можно вставить текст вручную.";
-    showToast("OCR не сработал");
+    els.ocrStatus.textContent = t("ocr.failedStatus");
+    showToast(t("ocr.failedToast"));
   } finally {
     if (worker) await worker.terminate();
     document.querySelector("#runOcrButton").disabled = false;
@@ -786,7 +1276,7 @@ function openSlotPicker(slotKey) {
   pendingSlot = { dateKey, mealId };
   const date = parseDateKey(dateKey);
   const meal = mealTypes.find((item) => item.id === mealId);
-  els.slotDialogContext.textContent = `${dayShort[date.getDay()]} · ${meal.label.toLowerCase()}`;
+  els.slotDialogContext.textContent = `${getDayName(date.getDay(), "short")} · ${t(meal.labelKey).toLowerCase()}`;
   state.slotSearch = "";
   els.slotSearch.value = "";
   renderQuickPicks();
@@ -796,20 +1286,20 @@ function openSlotPicker(slotKey) {
 
 function renderQuickPicks() {
   const picks = [
-    { label: "Желания", matcher: (dish) => hasWishes(dish) },
-    { label: `${getActiveMember().name} хочет`, matcher: (dish) => getWantedBy(dish).includes(state.activeMemberId) },
-    { label: "Давно не ели", matcher: (dish) => isLongAgo(dish.lastCooked) },
-    { label: "Быстро", matcher: (dish) => dish.tags.includes("быстро") },
-    { label: "Дети любят", matcher: (dish) => dish.tags.includes("дети любят") },
+    { key: FILTER_WISHES, label: t("filters.wishes") },
+    { key: FILTER_MEMBER_WANTS, label: formatMessage("filters.memberWants", { name: displayProfileName(getActiveMember()) }) },
+    { key: FILTER_LONG_AGO, label: t("filters.longAgo") },
+    { key: "quick-fast", label: t("filters.quickFast") },
+    { key: "quick-kids", label: t("filters.quickKids") },
   ];
 
   els.quickPicks.innerHTML = picks
-    .map((pick) => `<button class="chip" type="button" data-slot-filter="${pick.label}">${pick.label}</button>`)
+    .map((pick) => `<button class="chip" type="button" data-slot-filter="${pick.key}" data-slot-label="${escapeHtml(pick.label)}">${escapeHtml(pick.label)}</button>`)
     .join("");
 
   els.quickPicks.querySelectorAll("[data-slot-filter]").forEach((button) => {
     button.addEventListener("click", () => {
-      els.slotSearch.value = button.dataset.slotFilter;
+      els.slotSearch.value = button.dataset.slotLabel;
       state.slotSearch = button.dataset.slotFilter;
       renderSlotDishList();
     });
@@ -821,9 +1311,13 @@ function renderSlotDishList() {
   const dishes = [...state.dishes]
     .filter((dish) => {
       if (!search) return true;
-      if (search === normalize("Желания")) return hasWishes(dish);
-      if (search === normalize(`${getActiveMember().name} хочет`)) return getWantedBy(dish).includes(state.activeMemberId);
-      if (search === normalize("Давно не ели")) return isLongAgo(dish.lastCooked);
+      if (state.slotSearch === FILTER_WISHES || isLocalizedSearch(search, "filters.wishes")) return hasWishes(dish);
+      if (state.slotSearch === FILTER_MEMBER_WANTS || isLocalizedSearch(search, "filters.memberWants", { name: displayProfileName(getActiveMember()) })) {
+        return getWantedBy(dish).includes(state.activeMemberId);
+      }
+      if (state.slotSearch === FILTER_LONG_AGO || isLocalizedSearch(search, "filters.longAgo")) return isLongAgo(dish.lastCooked);
+      if (state.slotSearch === "quick-fast" || isLocalizedSearch(search, "filters.quickFast")) return hasAnyTag(dish, ["быстро", "מהיר"]);
+      if (state.slotSearch === "quick-kids" || isLocalizedSearch(search, "filters.quickKids")) return hasAnyTag(dish, ["дети любят", "ילדים אוהבים"]);
       return getDishSearchText(dish).includes(search);
     })
     .sort(sortRecommended);
@@ -835,15 +1329,15 @@ function renderSlotDishList() {
             const conflicts = getProfileConflicts(dish);
             const matches = getProfileMatches(dish);
             const profileLine = conflicts.length
-              ? `Не подходит: ${conflicts.join(", ")}`
+              ? formatMessage("slot.conflict", { items: conflicts.join(", ") })
               : matches.length
-                ? `Подходит: ${matches.join(", ")}`
-                : "Без ограничений";
+                ? formatMessage("slot.match", { items: matches.join(", ") })
+                : t("slot.noLimits");
             return `
               <button class="wish-card" type="button" data-choose-dish="${dish.id}">
                 <div>
                   <h3>${escapeHtml(dish.name)}</h3>
-                  <p>${escapeHtml(dish.category)} · ${formatTags(dish.tags)}</p>
+                  <p>${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(formatTags(dish.tags))}</p>
                   <p class="${conflicts.length ? "warn-line" : "ok-line"}">${escapeHtml(profileLine)}</p>
                 </div>
                 <span class="mini-button" aria-hidden="true">＋</span>
@@ -852,7 +1346,7 @@ function renderSlotDishList() {
           },
         )
         .join("")
-    : `<div class="empty-state">Такого блюда пока нет.</div>`;
+    : `<div class="empty-state">${t("slot.empty")}</div>`;
 
   els.slotDishList.querySelectorAll("[data-choose-dish]").forEach((button) => {
     button.addEventListener("click", () => chooseDishForSlot(button.dataset.chooseDish));
@@ -875,7 +1369,7 @@ function setSlot(dateKey, mealId, dishId) {
     dish.wantedBy = [];
   }
   saveState();
-  showToast("Добавлено в меню");
+  showToast(t("toasts.addedToMenu"));
   render();
 }
 
@@ -903,7 +1397,7 @@ function autoPlanDay(dateKey) {
     dish.wantedBy = [];
   });
   saveState();
-  showToast("День заполнен");
+  showToast(t("toasts.dayFilled"));
   render();
 }
 
@@ -925,7 +1419,7 @@ function autoPlanWeek() {
     });
   }
   saveState();
-  showToast("Неделя заполнена");
+  showToast(t("toasts.weekFilled"));
   render();
   setView("week");
 }
@@ -951,7 +1445,7 @@ function planDishSoon(dishId) {
       }
     }
   }
-  showToast("В неделе нет свободных слотов");
+  showToast(t("toasts.noFreeSlots"));
 }
 
 function toggleWanted(dishId, profileId = state.activeMemberId) {
@@ -978,21 +1472,21 @@ async function copyShoppingList() {
     .map((group) => {
       const items = group.items.filter((item) => !item.inPantry && !state.shoppingDone.includes(item.key));
       if (!items.length) return "";
-      return `${group.name}\n${items.map((item) => `- ${item.name}`).join("\n")}`;
+      return `${displayIngredientGroup(group.name)}\n${items.map((item) => `- ${item.name}`).join("\n")}`;
     })
     .filter(Boolean)
     .join("\n\n");
 
   if (!text) {
-    showToast("Список пока пустой");
+    showToast(t("toasts.emptyList"));
     return;
   }
 
   try {
     await navigator.clipboard.writeText(text);
-    showToast("Список скопирован");
+    showToast(t("toasts.listCopied"));
   } catch {
-    showToast("Не получилось скопировать");
+    showToast(t("toasts.copyFailed"));
   }
 }
 
@@ -1029,17 +1523,17 @@ function buildShoppingGroups() {
 
   return [...grouped.entries()].map(([name, items]) => ({
     name,
-    items: items.sort((a, b) => a.name.localeCompare(b.name, "ru")),
+    items: items.sort((a, b) => a.name.localeCompare(b.name, getLocale())),
   }));
 }
 
 function getIngredientGroup(name) {
   const text = normalize(name);
   const groups = [
-    ["Овощи и фрукты", ["морковь", "картофель", "лук", "огур", "помид", "зелень", "кабач", "лимон", "оливки"]],
-    ["Мясо и рыба", ["кур", "фарш", "лосось", "рыба"]],
-    ["Молочное", ["сыр", "творог", "сметана", "молоко", "масло"]],
-    ["Бакалея", ["мука", "лапша", "тесто", "соус", "панировка"]],
+    ["Овощи и фрукты", ["морковь", "картофель", "лук", "огур", "помид", "зелень", "кабач", "лимон", "оливки", "גזר", "תפוח", "בצל", "מלפפון", "עגב", "ירק", "קישוא", "לימון", "זית"]],
+    ["Мясо и рыба", ["кур", "фарш", "лосось", "рыба", "עוף", "בשר", "דג", "סלמון"]],
+    ["Молочное", ["сыр", "творог", "сметана", "молоко", "масло", "גבינה", "חלב", "חמאה", "שמנת"]],
+    ["Бакалея", ["мука", "лапша", "тесто", "соус", "панировка", "קמח", "אטריות", "בצק", "רוטב", "אורז", "פסטה"]],
   ];
   return groups.find(([, words]) => words.some((word) => text.includes(word)))?.[0] ?? "Остальное";
 }
@@ -1052,13 +1546,12 @@ function shiftWeek(days) {
 
 function getFilteredDishes() {
   const search = normalize(state.dishSearch);
-  const activeMemberFilter = `${getActiveMember().name} хочет`;
   return [...state.dishes]
     .filter((dish) => {
-      if (state.activeFilter === "Желания") return hasWishes(dish);
-      if (state.activeFilter === activeMemberFilter) return getWantedBy(dish).includes(state.activeMemberId);
-      if (state.activeFilter === "Давно не ели") return isLongAgo(dish.lastCooked);
-      if (state.activeFilter !== "Все") return dish.category === state.activeFilter;
+      if (state.activeFilter === FILTER_WISHES) return hasWishes(dish);
+      if (state.activeFilter === FILTER_MEMBER_WANTS) return getWantedBy(dish).includes(state.activeMemberId);
+      if (state.activeFilter === FILTER_LONG_AGO) return isLongAgo(dish.lastCooked);
+      if (state.activeFilter !== FILTER_ALL) return dish.category === state.activeFilter;
       return true;
     })
     .filter((dish) => !search || getDishSearchText(dish).includes(search))
@@ -1090,7 +1583,12 @@ function getWeekPlanEntries(weekStart) {
 }
 
 function getDishSearchText(dish) {
-  return normalize([dish.name, dish.category, dish.tags.join(" "), dish.ingredients.join(" "), dish.note].join(" "));
+  return normalize([dish.name, dish.category, getCategorySearchText(dish.category), dish.tags.join(" "), dish.ingredients.join(" "), dish.note].join(" "));
+}
+
+function hasAnyTag(dish, terms) {
+  const tags = dish.tags.map(normalize);
+  return terms.some((term) => tags.some((tag) => tag.includes(normalize(term))));
 }
 
 function findDish(dishId) {
@@ -1102,7 +1600,13 @@ function getActiveMember() {
 }
 
 function getDishMatchText(dish) {
-  return normalize([dish.name, dish.category, dish.tags.join(" "), dish.ingredients.join(" "), dish.note].join(" "));
+  return normalize([dish.name, dish.category, getCategorySearchText(dish.category), dish.tags.join(" "), dish.ingredients.join(" "), dish.note].join(" "));
+}
+
+function getCategorySearchText(category) {
+  const key = categoryLabelKeys[category];
+  if (!key) return "";
+  return SUPPORTED_LANGUAGES.map((language) => getTranslation(language, key)).join(" ");
 }
 
 function getProfileConflicts(dish, profile = getActiveMember()) {
@@ -1126,7 +1630,7 @@ function hasWishes(dish) {
 
 function formatProfileNames(profileIds) {
   const names = profileIds
-    .map((profileId) => state.profiles.find((profile) => profile.id === profileId)?.name)
+    .map((profileId) => displayProfileName(profileId))
     .filter(Boolean);
   return names.join(", ");
 }
@@ -1136,13 +1640,13 @@ function addProfile(name) {
   if (!trimmed) return;
   const exists = state.profiles.some((profile) => normalize(profile.name) === normalize(trimmed));
   if (exists) {
-    showToast("Такой профиль уже есть");
+    showToast(t("toasts.profileExists"));
     return;
   }
   const profile = { id: `member-${Date.now()}`, name: trimmed, likes: [], avoids: [] };
   state.profiles = [...state.profiles, profile];
   state.activeMemberId = profile.id;
-  state.activeFilter = "Все";
+  state.activeFilter = FILTER_ALL;
   saveState();
   render();
 }
@@ -1153,7 +1657,7 @@ function saveProfilePreferences() {
   const avoids = parseList(els.familyPanel.querySelector("#profileAvoids").value);
   state.profiles = state.profiles.map((profile) => (profile.id === profileId ? { ...profile, likes, avoids } : profile));
   saveState();
-  showToast("Предпочтения сохранены");
+  showToast(t("toasts.prefsSaved"));
   render();
 }
 
@@ -1258,7 +1762,7 @@ function exportBackup() {
   link.download = `home-menu-backup-${toDateKey(new Date())}.json`;
   link.click();
   URL.revokeObjectURL(url);
-  showToast("Backup скачан");
+  showToast(t("toasts.backupExported"));
 }
 
 function importBackup(event) {
@@ -1277,9 +1781,9 @@ function importBackup(event) {
       });
       saveState();
       render();
-      showToast("Backup загружен");
+      showToast(t("toasts.backupImported"));
     } catch {
-      showToast("Не удалось прочитать backup");
+      showToast(t("toasts.backupFailed"));
     } finally {
       event.target.value = "";
     }
@@ -1292,7 +1796,7 @@ function insight(value, label) {
 }
 
 function formatTags(tags) {
-  return tags.slice(0, 3).join(", ") || "без тегов";
+  return tags.slice(0, 3).join(", ") || t("tags.none");
 }
 
 function getDaysAgo(dateKey) {
@@ -1336,12 +1840,71 @@ function parseDateKey(dateKey) {
   return new Date(year, month - 1, day);
 }
 
-function formatDate(date) {
-  return new Intl.DateTimeFormat("ru", { day: "numeric", month: "short" }).format(date);
-}
-
 function normalize(value) {
   return String(value).trim().toLowerCase();
+}
+
+function getDirection() {
+  return state.language === "he" ? "rtl" : "ltr";
+}
+
+function getLocale() {
+  return state.language === "he" ? "he-IL" : "ru-RU";
+}
+
+function getTranslation(language, key) {
+  return key.split(".").reduce((value, part) => value?.[part], translations[language]);
+}
+
+function t(key) {
+  const language = SUPPORTED_LANGUAGES.includes(state.language) ? state.language : "ru";
+  return getTranslation(language, key) ?? getTranslation("ru", key) ?? key;
+}
+
+function formatMessage(key, values = {}) {
+  return formatMessageForLanguage(state.language, key, values);
+}
+
+function formatMessageForLanguage(language, key, values = {}) {
+  const template = getTranslation(language, key) ?? getTranslation("ru", key) ?? key;
+  return Object.entries(values).reduce((message, [name, value]) => message.replaceAll(`{${name}}`, String(value)), template);
+}
+
+function isLocalizedSearch(search, key, values = {}) {
+  return SUPPORTED_LANGUAGES.some((language) => search === normalize(formatMessageForLanguage(language, key, values)));
+}
+
+function getDayName(dayIndex, width = "long") {
+  return t(`days.${width}`)[dayIndex];
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "short" }).format(date);
+}
+
+function displayCategory(category) {
+  const key = categoryLabelKeys[category];
+  return key ? t(key) : category;
+}
+
+function displayIngredientGroup(group) {
+  const key = groupLabelKeys[group];
+  return key ? t(key) : group;
+}
+
+function displayProfileName(profileOrId) {
+  const profile = typeof profileOrId === "string" ? state.profiles.find((item) => item.id === profileOrId) : profileOrId;
+  if (!profile) return t("profile.fallback");
+
+  const mapping = profileLabelKeys[profile.id];
+  if (mapping) {
+    const knownNames = SUPPORTED_LANGUAGES.map((language) => getTranslation(language, mapping.key));
+    if (!profile.name || profile.name === mapping.defaultName || knownNames.includes(profile.name)) {
+      return t(mapping.key);
+    }
+  }
+
+  return profile.name || t("profile.fallback");
 }
 
 function escapeHtml(value) {
@@ -1376,6 +1939,8 @@ function loadState() {
 }
 
 function normalizeState(nextState) {
+  nextState.language = SUPPORTED_LANGUAGES.includes(nextState.language) ? nextState.language : defaultState.language;
+  nextState.activeFilter = normalizeFilterValue(nextState.activeFilter);
   const profiles = nextState.profiles?.length ? nextState.profiles : structuredClone(defaultState.profiles);
   const hasFamily = profiles.some((profile) => profile.id === "member-family");
   nextState.profiles = (hasFamily ? profiles : [defaultState.profiles[0], ...profiles]).map(normalizeProfile);
@@ -1386,6 +1951,16 @@ function normalizeState(nextState) {
   nextState.importText = nextState.importText || "";
   nextState.dishes = nextState.dishes.map(normalizeDish);
   return nextState;
+}
+
+function normalizeFilterValue(filter) {
+  if (!filter) return FILTER_ALL;
+  if ([FILTER_ALL, FILTER_WISHES, FILTER_MEMBER_WANTS, FILTER_LONG_AGO].includes(filter)) return filter;
+  if (filter === "Все") return FILTER_ALL;
+  if (filter === "Желания") return FILTER_WISHES;
+  if (filter === "Давно не ели") return FILTER_LONG_AGO;
+  if (String(filter).endsWith(" хочет") || String(filter).endsWith(" רוצה")) return FILTER_MEMBER_WANTS;
+  return filter;
 }
 
 function normalizeProfile(profile) {
@@ -1414,9 +1989,10 @@ function normalizeDish(dish) {
 }
 
 function resetDemo() {
-  state = structuredClone(defaultState);
+  const language = state.language;
+  state = structuredClone({ ...defaultState, language });
   saveState();
-  showToast("Демо-данные восстановлены");
+  showToast(t("toasts.demoReset"));
   render();
 }
 
