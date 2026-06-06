@@ -598,6 +598,33 @@ h3 {
   border-top: 1px solid var(--line);
 }
 
+.sync-panel {
+  border-color: rgba(49, 95, 135, 0.24);
+}
+
+.sync-form {
+  display: grid;
+  gap: 10px;
+}
+
+.sync-badge {
+  display: inline-grid;
+  min-height: 34px;
+  place-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.sync-badge.is-connected {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
 .ok-line {
   color: var(--accent-strong);
 }

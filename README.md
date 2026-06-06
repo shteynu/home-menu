@@ -32,6 +32,7 @@ https://shteynu.github.io/home-menu/
 - Слоты: завтрак, обед, ужин.
 - Банк блюд с категориями, тегами, ингредиентами и заметками.
 - Переключение интерфейса между русским и ивритом, включая RTL-направление для иврита.
+- Bilingual demo-набор: 16 домашних блюд с русскими и ивритскими названиями, тегами, ингредиентами и заметками.
 - Семейные профили и отметка блюд как "хочу" по каждому человеку.
 - Автоподбор дня или всей недели.
 - История последнего приготовления.
@@ -41,12 +42,54 @@ https://shteynu.github.io/home-menu/
 - OCR-импорт из фото через Tesseract.js в браузере.
 - Предпочтения профилей: "любит" и "нельзя / не любит" по тегам, ингредиентам или категориям.
 - Резервная копия JSON для переноса данных между телефонами.
+- Подготовленная облачная синхронизация через Supabase Auth + RLS.
 - PWA manifest и service worker для установки на телефон после публикации на HTTPS.
+
+## Облачная синхронизация
+
+Синхронизация работает через Supabase: один семейный email можно открыть на нескольких телефонах. В приложении нужно ввести `Supabase URL`, `anon/public key` и семейный email, затем отправить magic link и войти по ссылке.
+
+В Supabase SQL Editor нужно создать таблицу:
+
+```sql
+create table if not exists public.home_menu_states (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  state jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.home_menu_states enable row level security;
+
+create policy "Users can read own home menu state"
+on public.home_menu_states
+for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "Users can insert own home menu state"
+on public.home_menu_states
+for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can update own home menu state"
+on public.home_menu_states
+for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+```
+
+В Supabase Auth нужно оставить включенным Email provider и добавить GitHub Pages URL в разрешенные redirect URLs:
+
+```text
+https://shteynu.github.io/home-menu/
+```
 
 ## Следующие этапы
 
-1. Добавить облачную синхронизацию через Supabase или Firebase.
-2. Добавить вход по email/Google для семейного аккаунта.
+1. Добавить настоящие семейные роли: отдельные аккаунты родителей/детей вместо одного общего email.
+2. Добавить автослияние конфликтов, если два телефона меняли меню офлайн.
 3. Перенести в Expo/React Native, если понадобится полноценная публикация в App Store и Google Play.
 4. Улучшить OCR: поворот фото, обрезка области таблицы, подсказки для рукописного текста.
 

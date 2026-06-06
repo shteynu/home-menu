@@ -6,6 +6,7 @@ const FILTER_MEMBER_WANTS = "__member_wants__";
 const FILTER_LONG_AGO = "Давно не ели";
 
 const SUPPORTED_LANGUAGES = ["ru", "he"];
+const SUPABASE_MODULE_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const translations = {
   ru: {
@@ -97,6 +98,37 @@ const translations = {
       export: "Скачать backup",
       import: "Загрузить backup",
       help: "Это временная синхронизация без облака: файл можно отправить себе и загрузить на другом телефоне.",
+    },
+    sync: {
+      eyebrow: "Общее семейное меню",
+      title: "Облачная синхронизация",
+      disabled: "Не подключено",
+      connected: "Подключено",
+      signedIn: "Вход выполнен: {email}",
+      notSignedIn: "Войдите по email, чтобы синхронизировать это устройство.",
+      url: "Supabase URL",
+      urlPlaceholder: "https://xxxx.supabase.co",
+      anonKey: "Anon public key",
+      anonKeyPlaceholder: "sb_publishable_...",
+      email: "Семейный email",
+      emailPlaceholder: "family@example.com",
+      saveSettings: "Сохранить настройки",
+      sendLink: "Отправить ссылку входа",
+      push: "Сохранить в облако",
+      pull: "Загрузить из облака",
+      signOut: "Выйти",
+      help: "Один семейный email можно открыть на нескольких телефонах. Данные защищаются Supabase Auth и RLS.",
+      lastSync: "Последняя синхронизация: {time}",
+      neverSynced: "Еще не синхронизировано",
+      setupMissing: "Заполните Supabase URL, anon key и email.",
+      settingsSaved: "Настройки синхронизации сохранены",
+      linkSent: "Ссылка входа отправлена на email",
+      loginRequired: "Сначала войдите по email",
+      cloudSaved: "Сохранено в облако",
+      cloudLoaded: "Загружено из облака",
+      noCloudData: "В облаке пока нет данных",
+      signedOut: "Вы вышли из облака",
+      failed: "Синхронизация не сработала",
     },
     family: {
       eyebrow: "Кто выбирает",
@@ -215,6 +247,9 @@ const translations = {
       backupFailed: "Не удалось прочитать backup",
       demoReset: "Демо-данные восстановлены",
     },
+    demo: {
+      resetHebrew: "Демо-блюда обновлены: есть русские и ивритские названия.",
+    },
   },
   he: {
     app: {
@@ -305,6 +340,37 @@ const translations = {
       export: "הורדת backup",
       import: "טעינת backup",
       help: "זה סנכרון זמני בלי ענן: אפשר לשלוח את הקובץ לעצמכם ולטעון בטלפון אחר.",
+    },
+    sync: {
+      eyebrow: "תפריט משפחתי משותף",
+      title: "סנכרון ענן",
+      disabled: "לא מחובר",
+      connected: "מחובר",
+      signedIn: "מחובר/ת: {email}",
+      notSignedIn: "התחברו באימייל כדי לסנכרן את המכשיר הזה.",
+      url: "Supabase URL",
+      urlPlaceholder: "https://xxxx.supabase.co",
+      anonKey: "Anon public key",
+      anonKeyPlaceholder: "sb_publishable_...",
+      email: "אימייל משפחתי",
+      emailPlaceholder: "family@example.com",
+      saveSettings: "שמירת הגדרות",
+      sendLink: "שליחת קישור כניסה",
+      push: "שמירה לענן",
+      pull: "טעינה מהענן",
+      signOut: "יציאה",
+      help: "אפשר להשתמש באותו אימייל משפחתי בכמה טלפונים. הנתונים מוגנים בעזרת Supabase Auth ו-RLS.",
+      lastSync: "סנכרון אחרון: {time}",
+      neverSynced: "עדיין לא סונכרן",
+      setupMissing: "מלאו Supabase URL, anon key ואימייל.",
+      settingsSaved: "הגדרות הסנכרון נשמרו",
+      linkSent: "קישור כניסה נשלח לאימייל",
+      loginRequired: "קודם צריך להתחבר באימייל",
+      cloudSaved: "נשמר בענן",
+      cloudLoaded: "נטען מהענן",
+      noCloudData: "עדיין אין נתונים בענן",
+      signedOut: "התנתקתם מהענן",
+      failed: "הסנכרון לא הצליח",
     },
     family: {
       eyebrow: "מי בוחר",
@@ -423,6 +489,9 @@ const translations = {
       backupFailed: "לא הצלחנו לקרוא backup",
       demoReset: "נתוני ההדגמה שוחזרו",
     },
+    demo: {
+      resetHebrew: "מנות ההדגמה עודכנו: יש שמות ברוסית ובעברית.",
+    },
   },
 };
 
@@ -463,6 +532,12 @@ const defaultState = {
   activeMemberId: "member-family",
   dishSearch: "",
   importText: "",
+  sync: {
+    supabaseUrl: "",
+    anonKey: "",
+    email: "",
+    lastSyncedAt: "",
+  },
   pantry: ["яйца", "мука", "лук"],
   profiles: [
     { id: "member-family", name: "Семья", likes: ["любимое", "домашнее"], avoids: [] },
@@ -479,6 +554,14 @@ const defaultState = {
       tags: ["дети любят", "на два дня", "шаббат"],
       ingredients: ["курица", "морковь", "картофель", "лук", "лапша"],
       note: "Хорошо готовить большой кастрюлей.",
+      i18n: {
+        he: {
+          name: "מרק עוף",
+          tags: ["ילדים אוהבים", "ליומיים", "שבת"],
+          ingredients: ["עוף", "גזר", "תפוחי אדמה", "בצל", "אטריות"],
+          note: "נוח להכין סיר גדול ליומיים.",
+        },
+      },
       lastCooked: "",
       wanted: true,
       wantedBy: ["member-family"],
@@ -490,6 +573,14 @@ const defaultState = {
       tags: ["быстро", "молочное", "любимое"],
       ingredients: ["творог", "яйца", "мука", "сметана"],
       note: "Можно сделать вечером и утром разогреть.",
+      i18n: {
+        he: {
+          name: "לביבות גבינה",
+          tags: ["מהיר", "חלבי", "אהוב"],
+          ingredients: ["גבינה לבנה", "ביצים", "קמח", "שמנת חמוצה"],
+          note: "אפשר להכין בערב ולחמם בבוקר.",
+        },
+      },
       lastCooked: "",
       wanted: false,
     },
@@ -500,6 +591,14 @@ const defaultState = {
       tags: ["рыба", "быстро", "легкое"],
       ingredients: ["лосось", "лимон", "кабачок", "помидоры"],
       note: "Запечь на одном противне.",
+      i18n: {
+        he: {
+          name: "סלמון עם ירקות",
+          tags: ["דגים", "מהיר", "קל"],
+          ingredients: ["סלמון", "לימון", "קישוא", "עגבניות"],
+          note: "לאפות הכל בתבנית אחת.",
+        },
+      },
       lastCooked: "",
       wanted: false,
     },
@@ -510,6 +609,14 @@ const defaultState = {
       tags: ["дети любят", "пятница", "любимое"],
       ingredients: ["тесто", "томатный соус", "сыр", "оливки"],
       note: "Подходит для вечера без сложной готовки.",
+      i18n: {
+        he: {
+          name: "פיצה ביתית",
+          tags: ["ילדים אוהבים", "שישי", "אהוב"],
+          ingredients: ["בצק", "רוטב עגבניות", "גבינה", "זיתים"],
+          note: "מתאים לערב בלי בישול מסובך.",
+        },
+      },
       lastCooked: "",
       wanted: true,
       wantedBy: ["member-kids"],
@@ -521,6 +628,14 @@ const defaultState = {
       tags: ["мясное", "домашнее", "сытное"],
       ingredients: ["фарш", "картофель", "лук", "огурцы"],
       note: "Сразу сделать запас на завтра.",
+      i18n: {
+        he: {
+          name: "קציצות עם פירה",
+          tags: ["בשרי", "ביתי", "משביע"],
+          ingredients: ["בשר טחון", "תפוחי אדמה", "בצל", "מלפפונים"],
+          note: "כדאי להכין כמות גם למחר.",
+        },
+      },
       lastCooked: "",
       wanted: false,
     },
@@ -531,6 +646,14 @@ const defaultState = {
       tags: ["любимое", "молочное", "выходной"],
       ingredients: ["молоко", "яйца", "мука", "масло"],
       note: "Хорошо с творогом или вареньем.",
+      i18n: {
+        he: {
+          name: "בלינצ׳ס",
+          tags: ["אהוב", "חלבי", "סוף שבוע"],
+          ingredients: ["חלב", "ביצים", "קמח", "חמאה"],
+          note: "טעים עם גבינה או ריבה.",
+        },
+      },
       lastCooked: "",
       wanted: true,
       wantedBy: ["member-family", "member-kids"],
@@ -542,6 +665,14 @@ const defaultState = {
       tags: ["овощи", "быстро", "каждый день"],
       ingredients: ["огурцы", "помидоры", "зелень", "оливковое масло"],
       note: "Добавлять к мясным блюдам.",
+      i18n: {
+        he: {
+          name: "סלט מלפפונים ועגבניות",
+          tags: ["ירקות", "מהיר", "כל יום"],
+          ingredients: ["מלפפונים", "עגבניות", "ירק", "שמן זית"],
+          note: "מתאים ליד מנות בשריות.",
+        },
+      },
       lastCooked: "",
       wanted: false,
     },
@@ -552,6 +683,160 @@ const defaultState = {
       tags: ["дети любят", "быстро"],
       ingredients: ["куриное филе", "панировка", "картофель фри"],
       note: "Лучше планировать с овощами.",
+      i18n: {
+        he: {
+          name: "נאגטס",
+          tags: ["ילדים אוהבים", "מהיר"],
+          ingredients: ["חזה עוף", "פירורי לחם", "צ׳יפס"],
+          note: "עדיף לתכנן עם ירקות בצד.",
+        },
+      },
+      lastCooked: "",
+      wanted: false,
+    },
+    {
+      id: "dish-shakshuka",
+      name: "Шакшука",
+      category: "Завтрак",
+      tags: ["быстро", "яйца", "израильское"],
+      ingredients: ["яйца", "помидоры", "перец", "лук", "пита"],
+      note: "Хорошо на поздний завтрак или легкий ужин.",
+      i18n: {
+        he: {
+          name: "שקשוקה",
+          tags: ["מהיר", "ביצים", "ישראלי"],
+          ingredients: ["ביצים", "עגבניות", "פלפל", "בצל", "פיתה"],
+          note: "טוב לארוחת בוקר מאוחרת או ערב קל.",
+        },
+      },
+      lastCooked: "",
+      wanted: true,
+      wantedBy: ["member-adults"],
+    },
+    {
+      id: "dish-ptitim",
+      name: "Птитим с курицей",
+      category: "Основное",
+      tags: ["дети любят", "быстро", "на два дня"],
+      ingredients: ["птитим", "курица", "морковь", "лук"],
+      note: "Удобно готовить в одной кастрюле.",
+      i18n: {
+        he: {
+          name: "פתיתים עם עוף",
+          tags: ["ילדים אוהבים", "מהיר", "ליומיים"],
+          ingredients: ["פתיתים", "עוף", "גזר", "בצל"],
+          note: "נוח להכין בסיר אחד.",
+        },
+      },
+      lastCooked: "",
+      wanted: false,
+    },
+    {
+      id: "dish-hummus-plate",
+      name: "Хумус с питой и салатом",
+      category: "Перекус",
+      tags: ["быстро", "легкое", "без мяса"],
+      ingredients: ["хумус", "пита", "огурцы", "помидоры", "оливковое масло"],
+      note: "Подходит для быстрого ужина.",
+      i18n: {
+        he: {
+          name: "חומוס עם פיתה וסלט",
+          tags: ["מהיר", "קל", "בלי בשר"],
+          ingredients: ["חומוס", "פיתה", "מלפפונים", "עגבניות", "שמן זית"],
+          note: "מתאים לארוחת ערב מהירה.",
+        },
+      },
+      lastCooked: "",
+      wanted: false,
+    },
+    {
+      id: "dish-majadera",
+      name: "Маджадра",
+      category: "Гарнир",
+      tags: ["без мяса", "домашнее", "сытное"],
+      ingredients: ["рис", "чечевица", "лук", "оливковое масло"],
+      note: "Можно подавать с салатом или йогуртом.",
+      i18n: {
+        he: {
+          name: "מג׳דרה",
+          tags: ["בלי בשר", "ביתי", "משביע"],
+          ingredients: ["אורז", "עדשים", "בצל", "שמן זית"],
+          note: "אפשר להגיש עם סלט או יוגורט.",
+        },
+      },
+      lastCooked: "",
+      wanted: false,
+    },
+    {
+      id: "dish-schnitzel",
+      name: "Шницель с рисом",
+      category: "Основное",
+      tags: ["дети любят", "мясное", "домашнее"],
+      ingredients: ["куриное филе", "панировка", "яйца", "рис", "лимон"],
+      note: "Классика для обеда, хорошо идет с салатом.",
+      i18n: {
+        he: {
+          name: "שניצל עם אורז",
+          tags: ["ילדים אוהבים", "בשרי", "ביתי"],
+          ingredients: ["חזה עוף", "פירורי לחם", "ביצים", "אורז", "לימון"],
+          note: "קלאסי לצהריים, הולך טוב עם סלט.",
+        },
+      },
+      lastCooked: "",
+      wanted: true,
+      wantedBy: ["member-kids"],
+    },
+    {
+      id: "dish-couscous",
+      name: "Кускус с овощами",
+      category: "Основное",
+      tags: ["овощи", "на два дня", "без мяса"],
+      ingredients: ["кускус", "морковь", "кабачок", "нут", "лук"],
+      note: "Хорошо готовить большой порцией.",
+      i18n: {
+        he: {
+          name: "קוסקוס עם ירקות",
+          tags: ["ירקות", "ליומיים", "בלי בשר"],
+          ingredients: ["קוסקוס", "גזר", "קישוא", "חומוס", "בצל"],
+          note: "כדאי להכין כמות גדולה.",
+        },
+      },
+      lastCooked: "",
+      wanted: false,
+    },
+    {
+      id: "dish-tuna-pasta",
+      name: "Паста с тунцом",
+      category: "Основное",
+      tags: ["быстро", "рыба", "из запасов"],
+      ingredients: ["паста", "тунец", "томатный соус", "оливки"],
+      note: "Запасной вариант, когда мало времени.",
+      i18n: {
+        he: {
+          name: "פסטה עם טונה",
+          tags: ["מהיר", "דגים", "מהמזווה"],
+          ingredients: ["פסטה", "טונה", "רוטב עגבניות", "זיתים"],
+          note: "פתרון גיבוי כשאין הרבה זמן.",
+        },
+      },
+      lastCooked: "",
+      wanted: false,
+    },
+    {
+      id: "dish-vegetable-omelet",
+      name: "Омлет с овощами",
+      category: "Завтрак",
+      tags: ["быстро", "овощи", "легкое"],
+      ingredients: ["яйца", "помидоры", "зелень", "сыр"],
+      note: "Подходит и на завтрак, и на ужин.",
+      i18n: {
+        he: {
+          name: "חביתה עם ירקות",
+          tags: ["מהיר", "ירקות", "קל"],
+          ingredients: ["ביצים", "עגבניות", "ירק", "גבינה"],
+          note: "מתאים גם לבוקר וגם לערב.",
+        },
+      },
       lastCooked: "",
       wanted: false,
     },
@@ -564,6 +849,9 @@ let activeView = "week";
 let importCandidates = [];
 let pendingSlot = null;
 let tesseractModule = null;
+let supabaseModule = null;
+let supabaseClient = null;
+let syncSession = null;
 let toastTimer = null;
 
 const els = {
@@ -584,6 +872,7 @@ const els = {
   ocrLanguage: document.querySelector("#ocrLanguage"),
   ocrStatus: document.querySelector("#ocrStatus"),
   pantryPanel: document.querySelector("#pantryPanel"),
+  syncPanel: document.querySelector("#syncPanel"),
   wishBoard: document.querySelector("#wishBoard"),
   shoppingSummary: document.querySelector("#shoppingSummary"),
   shoppingList: document.querySelector("#shoppingList"),
@@ -659,6 +948,7 @@ if ("serviceWorker" in navigator) {
 }
 
 render();
+initializeCloudSync();
 
 function render() {
   applyLanguage();
@@ -745,8 +1035,8 @@ function renderWeek() {
                 ${
                   dish
                     ? `<div class="planned-dish">
-                        <strong>${escapeHtml(dish.name)}</strong>
-                        <span>${displayCategory(dish.category)} · ${formatTags(dish.tags)}</span>
+                        <strong>${escapeHtml(displayDishName(dish))}</strong>
+                        <span>${displayCategory(dish.category)} · ${formatTags(displayDishTags(dish))}</span>
                       </div>`
                     : `<div class="empty-slot">${t("week.emptySlot")}</div>`
                 }
@@ -858,14 +1148,14 @@ function renderDishCard(dish) {
   return `
     <article class="dish-card">
       <div class="dish-main">
-        <div class="dish-art" aria-hidden="true">${dish.name.slice(0, 1).toUpperCase()}</div>
+        <div class="dish-art" aria-hidden="true">${displayDishName(dish).slice(0, 1).toUpperCase()}</div>
         <div class="dish-meta">
-          <h3>${escapeHtml(dish.name)}</h3>
+          <h3>${escapeHtml(displayDishName(dish))}</h3>
           <p class="dish-note">${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(cookedLabel)}</p>
           <p class="dish-note">${escapeHtml(wantedLabel)}</p>
           <p class="dish-note ${conflicts.length ? "warn-line" : "ok-line"}">${escapeHtml(compatibilityLabel)}</p>
-          <p class="dish-ingredients">${escapeHtml(dish.ingredients.join(", "))}</p>
-          <div class="dish-tags">${dish.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
+          <p class="dish-ingredients">${escapeHtml(displayDishIngredients(dish).join(", "))}</p>
+          <div class="dish-tags">${displayDishTags(dish).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
         </div>
       </div>
       <div class="dish-actions">
@@ -967,8 +1257,8 @@ function renderWishes() {
           return `
             <article class="wish-card wish-card-stacked">
               <div>
-                <h3>${escapeHtml(dish.name)}</h3>
-                <p>${escapeHtml(reason)} · ${escapeHtml(formatTags(dish.tags))}</p>
+                <h3>${escapeHtml(displayDishName(dish))}</h3>
+                <p>${escapeHtml(reason)} · ${escapeHtml(formatTags(displayDishTags(dish)))}</p>
               </div>
               <div class="person-toggles">
                 ${state.profiles
@@ -1002,6 +1292,7 @@ function renderWishes() {
 function renderShopping() {
   renderPantryPanel();
   renderBackupPanel();
+  renderSyncPanel();
   const groups = buildShoppingGroups();
   const totalItems = groups.reduce((count, group) => count + group.items.length, 0);
   const pantryCount = groups.reduce((count, group) => count + group.items.filter((item) => item.inPantry).length, 0);
@@ -1037,6 +1328,228 @@ function renderShopping() {
   els.shoppingList.querySelectorAll("[data-remove-pantry]").forEach((button) => {
     button.addEventListener("click", () => removePantryItem(button.dataset.removePantry));
   });
+}
+
+function renderSyncPanel() {
+  const sync = state.sync || {};
+  const isConfigured = Boolean(sync.supabaseUrl && sync.anonKey && sync.email);
+  const statusLabel = syncSession?.user?.email
+    ? formatMessage("sync.signedIn", { email: syncSession.user.email })
+    : isConfigured
+      ? t("sync.notSignedIn")
+      : t("sync.disabled");
+  const lastSyncLabel = sync.lastSyncedAt
+    ? formatMessage("sync.lastSync", { time: new Intl.DateTimeFormat(getLocale(), { dateStyle: "short", timeStyle: "short" }).format(new Date(sync.lastSyncedAt)) })
+    : t("sync.neverSynced");
+
+  els.syncPanel.innerHTML = `
+    <section class="manage-panel sync-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">${t("sync.eyebrow")}</p>
+          <h3>${t("sync.title")}</h3>
+        </div>
+        <span class="sync-badge ${syncSession ? "is-connected" : ""}">${syncSession ? t("sync.connected") : t("sync.disabled")}</span>
+      </div>
+      <form class="sync-form" id="syncSettingsForm">
+        <label class="field">
+          ${t("sync.url")}
+          <input id="syncSupabaseUrl" type="url" value="${escapeHtml(sync.supabaseUrl || "")}" placeholder="${escapeHtml(t("sync.urlPlaceholder"))}" autocomplete="off" />
+        </label>
+        <label class="field">
+          ${t("sync.anonKey")}
+          <input id="syncAnonKey" type="password" value="${escapeHtml(sync.anonKey || "")}" placeholder="${escapeHtml(t("sync.anonKeyPlaceholder"))}" autocomplete="off" />
+        </label>
+        <label class="field">
+          ${t("sync.email")}
+          <input id="syncEmail" type="email" value="${escapeHtml(sync.email || "")}" placeholder="${escapeHtml(t("sync.emailPlaceholder"))}" autocomplete="email" />
+        </label>
+        <button class="secondary-button full-width" type="submit">${t("sync.saveSettings")}</button>
+      </form>
+      <div class="backup-actions">
+        <button class="secondary-button" id="syncLoginButton" type="button">${t("sync.sendLink")}</button>
+        <button class="secondary-button" id="syncPullButton" type="button">${t("sync.pull")}</button>
+        <button class="primary-button" id="syncPushButton" type="button">${t("sync.push")}</button>
+        ${syncSession ? `<button class="text-button" id="syncSignOutButton" type="button">${t("sync.signOut")}</button>` : ""}
+      </div>
+      <p class="muted-line">${escapeHtml(statusLabel)}</p>
+      <p class="muted-line">${escapeHtml(lastSyncLabel)}</p>
+      <p class="muted-line">${t("sync.help")}</p>
+    </section>
+  `;
+
+  els.syncPanel.querySelector("#syncSettingsForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    saveSyncSettings();
+  });
+  els.syncPanel.querySelector("#syncLoginButton").addEventListener("click", sendSyncLoginLink);
+  els.syncPanel.querySelector("#syncPullButton").addEventListener("click", pullCloudState);
+  els.syncPanel.querySelector("#syncPushButton").addEventListener("click", pushCloudState);
+  els.syncPanel.querySelector("#syncSignOutButton")?.addEventListener("click", signOutCloudSync);
+}
+
+async function initializeCloudSync() {
+  if (!hasSyncSettings()) return;
+
+  try {
+    const client = await getSupabaseClient();
+    const {
+      data: { session },
+    } = await client.auth.getSession();
+    syncSession = session;
+    client.auth.onAuthStateChange((_event, session) => {
+      syncSession = session;
+      renderSyncPanel();
+    });
+    renderSyncPanel();
+  } catch {
+    // Cloud sync remains optional; local mode still works.
+  }
+}
+
+function hasSyncSettings() {
+  const sync = state.sync || {};
+  return Boolean(sync.supabaseUrl && sync.anonKey && sync.email);
+}
+
+function saveSyncSettings() {
+  const previousUrl = state.sync?.supabaseUrl || "";
+  const previousKey = state.sync?.anonKey || "";
+  const nextSync = {
+    ...(state.sync || {}),
+    supabaseUrl: els.syncPanel.querySelector("#syncSupabaseUrl").value.trim(),
+    anonKey: els.syncPanel.querySelector("#syncAnonKey").value.trim(),
+    email: els.syncPanel.querySelector("#syncEmail").value.trim(),
+  };
+
+  state.sync = nextSync;
+  if (previousUrl !== nextSync.supabaseUrl || previousKey !== nextSync.anonKey) {
+    supabaseClient = null;
+    syncSession = null;
+  }
+  saveState();
+  showToast(t("sync.settingsSaved"));
+  renderShopping();
+  initializeCloudSync();
+}
+
+async function sendSyncLoginLink() {
+  if (!hasSyncSettings()) {
+    showToast(t("sync.setupMissing"));
+    return;
+  }
+
+  try {
+    const client = await getSupabaseClient();
+    const { error } = await client.auth.signInWithOtp({
+      email: state.sync.email,
+      options: {
+        emailRedirectTo: `${location.origin}${location.pathname}`,
+      },
+    });
+    if (error) throw error;
+    showToast(t("sync.linkSent"));
+  } catch (error) {
+    showToast(t("sync.failed"));
+  }
+}
+
+async function pushCloudState() {
+  try {
+    const { client, session } = await requireCloudSession();
+    const syncedAt = new Date().toISOString();
+    const { error } = await client.from("home_menu_states").upsert(
+      {
+        user_id: session.user.id,
+        state: sanitizeStateForSync(state),
+        updated_at: syncedAt,
+      },
+      { onConflict: "user_id" },
+    );
+    if (error) throw error;
+
+    state.sync.lastSyncedAt = syncedAt;
+    saveState();
+    renderSyncPanel();
+    showToast(t("sync.cloudSaved"));
+  } catch (error) {
+    showToast(error?.message === "login-required" ? t("sync.loginRequired") : t("sync.failed"));
+  }
+}
+
+async function pullCloudState() {
+  try {
+    const { client, session } = await requireCloudSession();
+    const { data, error } = await client.from("home_menu_states").select("state, updated_at").eq("user_id", session.user.id).maybeSingle();
+    if (error) throw error;
+    if (!data?.state) {
+      showToast(t("sync.noCloudData"));
+      return;
+    }
+
+    const syncSettings = {
+      ...(state.sync || {}),
+      lastSyncedAt: data.updated_at || new Date().toISOString(),
+    };
+    state = normalizeState({
+      ...structuredClone(defaultState),
+      ...data.state,
+      sync: syncSettings,
+      plans: data.state.plans ?? {},
+      dishes: data.state.dishes?.length ? data.state.dishes : structuredClone(defaultState.dishes),
+      profiles: data.state.profiles?.length ? data.state.profiles : structuredClone(defaultState.profiles),
+      pantry: Array.isArray(data.state.pantry) ? data.state.pantry : structuredClone(defaultState.pantry),
+      shoppingDone: data.state.shoppingDone ?? [],
+    });
+    saveState();
+    render();
+    showToast(t("sync.cloudLoaded"));
+  } catch (error) {
+    showToast(error?.message === "login-required" ? t("sync.loginRequired") : t("sync.failed"));
+  }
+}
+
+async function signOutCloudSync() {
+  try {
+    const client = await getSupabaseClient();
+    await client.auth.signOut();
+    syncSession = null;
+    renderSyncPanel();
+    showToast(t("sync.signedOut"));
+  } catch {
+    showToast(t("sync.failed"));
+  }
+}
+
+async function requireCloudSession() {
+  if (!hasSyncSettings()) throw new Error("login-required");
+  const client = await getSupabaseClient();
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+  syncSession = session;
+  if (!session?.user) throw new Error("login-required");
+  return { client, session };
+}
+
+async function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  if (!hasSyncSettings()) throw new Error("missing-settings");
+  const supabase = await loadSupabase();
+  supabaseClient = supabase.createClient(state.sync.supabaseUrl, state.sync.anonKey);
+  return supabaseClient;
+}
+
+async function loadSupabase() {
+  if (supabaseModule) return supabaseModule;
+  supabaseModule = await import(SUPABASE_MODULE_URL);
+  return supabaseModule;
+}
+
+function sanitizeStateForSync(sourceState) {
+  const copy = normalizeState(structuredClone(sourceState));
+  delete copy.sync;
+  return copy;
 }
 
 function renderShoppingItem(item) {
@@ -1131,30 +1644,50 @@ function openDishForm(dishId = "") {
   const dish = findDish(dishId);
   els.dishDialogTitle.textContent = dish ? t("dishForm.editTitle") : t("dishForm.addTitle");
   document.querySelector("#dishId").value = dish?.id ?? "";
-  document.querySelector("#dishName").value = dish?.name ?? "";
+  document.querySelector("#dishName").value = dish ? displayDishName(dish) : "";
   document.querySelector("#dishCategory").value = dish?.category ?? "Основное";
-  document.querySelector("#dishTags").value = dish?.tags.join(", ") ?? "";
-  document.querySelector("#dishIngredients").value = dish?.ingredients.join(", ") ?? "";
-  document.querySelector("#dishNote").value = dish?.note ?? "";
+  document.querySelector("#dishTags").value = dish ? displayDishTags(dish).join(", ") : "";
+  document.querySelector("#dishIngredients").value = dish ? displayDishIngredients(dish).join(", ") : "";
+  document.querySelector("#dishNote").value = dish ? displayDishNote(dish) : "";
   els.dishDialog.showModal();
 }
 
 function saveDishFromForm() {
   const dishId = document.querySelector("#dishId").value || `dish-${Date.now()}`;
   const previous = findDish(dishId);
+  const name = document.querySelector("#dishName").value.trim();
+  const category = document.querySelector("#dishCategory").value;
+  const tags = parseList(document.querySelector("#dishTags").value);
+  const ingredients = parseList(document.querySelector("#dishIngredients").value);
+  const note = document.querySelector("#dishNote").value.trim();
+
+  if (!name) return;
+
   const nextDish = {
     id: dishId,
-    name: document.querySelector("#dishName").value.trim(),
-    category: document.querySelector("#dishCategory").value,
-    tags: parseList(document.querySelector("#dishTags").value),
-    ingredients: parseList(document.querySelector("#dishIngredients").value),
-    note: document.querySelector("#dishNote").value.trim(),
+    name,
+    category,
+    tags,
+    ingredients,
+    note,
     lastCooked: previous?.lastCooked ?? "",
     wanted: previous?.wanted ?? false,
     wantedBy: previous ? getWantedBy(previous) : [],
+    i18n: previous?.i18n ?? {},
   };
 
-  if (!nextDish.name) return;
+  if (state.language !== "ru") {
+    nextDish.i18n = {
+      ...(previous?.i18n ?? {}),
+      [state.language]: { name, tags, ingredients, note },
+    };
+    if (previous) {
+      nextDish.name = previous.name;
+      nextDish.tags = previous.tags;
+      nextDish.ingredients = previous.ingredients;
+      nextDish.note = previous.note;
+    }
+  }
 
   state.dishes = previous
     ? state.dishes.map((dish) => (dish.id === dishId ? nextDish : dish))
@@ -1337,7 +1870,7 @@ function renderSlotDishList() {
               <button class="wish-card" type="button" data-choose-dish="${dish.id}">
                 <div>
                   <h3>${escapeHtml(dish.name)}</h3>
-                  <p>${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(formatTags(dish.tags))}</p>
+                  <p>${escapeHtml(displayCategory(dish.category))} · ${escapeHtml(formatTags(displayDishTags(dish)))}</p>
                   <p class="${conflicts.length ? "warn-line" : "ok-line"}">${escapeHtml(profileLine)}</p>
                 </div>
                 <span class="mini-button" aria-hidden="true">＋</span>
@@ -1498,7 +2031,7 @@ function buildShoppingGroups() {
   const ingredientMap = new Map();
 
   plannedDishes.forEach((dish) => {
-    dish.ingredients.forEach((ingredient) => {
+    displayDishIngredients(dish).forEach((ingredient) => {
       const name = ingredient.trim();
       if (!name) return;
       const key = normalize(name);
@@ -1511,7 +2044,7 @@ function buildShoppingGroups() {
           inPantry: isInPantry(name),
         });
       }
-      ingredientMap.get(key).sources.add(dish.name);
+      ingredientMap.get(key).sources.add(displayDishName(dish));
     });
   });
 
@@ -1583,7 +2116,7 @@ function getWeekPlanEntries(weekStart) {
 }
 
 function getDishSearchText(dish) {
-  return normalize([dish.name, dish.category, getCategorySearchText(dish.category), dish.tags.join(" "), dish.ingredients.join(" "), dish.note].join(" "));
+  return normalize(getDishTextVariants(dish).join(" "));
 }
 
 function hasAnyTag(dish, terms) {
@@ -1600,13 +2133,42 @@ function getActiveMember() {
 }
 
 function getDishMatchText(dish) {
-  return normalize([dish.name, dish.category, getCategorySearchText(dish.category), dish.tags.join(" "), dish.ingredients.join(" "), dish.note].join(" "));
+  return normalize(getDishTextVariants(dish).join(" "));
 }
 
 function getCategorySearchText(category) {
   const key = categoryLabelKeys[category];
   if (!key) return "";
   return SUPPORTED_LANGUAGES.map((language) => getTranslation(language, key)).join(" ");
+}
+
+function getDishTextVariants(dish) {
+  const localized = SUPPORTED_LANGUAGES.flatMap((language) => {
+    const entry = dish.i18n?.[language];
+    if (!entry) return [];
+    return [entry.name, entry.tags?.join(" "), entry.ingredients?.join(" "), entry.note];
+  });
+  return [dish.name, dish.category, getCategorySearchText(dish.category), dish.tags.join(" "), dish.ingredients.join(" "), dish.note, ...localized].filter(Boolean);
+}
+
+function getLocalizedDishEntry(dish, language = state.language) {
+  return dish.i18n?.[language] || null;
+}
+
+function displayDishName(dish) {
+  return getLocalizedDishEntry(dish)?.name || dish.name;
+}
+
+function displayDishTags(dish) {
+  return getLocalizedDishEntry(dish)?.tags?.length ? getLocalizedDishEntry(dish).tags : dish.tags;
+}
+
+function displayDishIngredients(dish) {
+  return getLocalizedDishEntry(dish)?.ingredients?.length ? getLocalizedDishEntry(dish).ingredients : dish.ingredients;
+}
+
+function displayDishNote(dish) {
+  return getLocalizedDishEntry(dish)?.note || dish.note;
 }
 
 function getProfileConflicts(dish, profile = getActiveMember()) {
@@ -1752,8 +2314,8 @@ function exportBackup() {
   const backup = {
     exportedAt: new Date().toISOString(),
     app: "home-menu",
-    version: 3,
-    state: normalizeState(structuredClone(state)),
+    version: 4,
+    state: sanitizeStateForSync(state),
   };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1773,9 +2335,11 @@ function importBackup(event) {
     try {
       const parsed = JSON.parse(String(reader.result || ""));
       const incomingState = parsed.state || parsed;
+      const currentSync = state.sync;
       state = normalizeState({
         ...structuredClone(defaultState),
         ...incomingState,
+        sync: currentSync,
         plans: incomingState.plans ?? {},
         dishes: incomingState.dishes?.length ? incomingState.dishes : structuredClone(defaultState.dishes),
       });
@@ -1932,6 +2496,7 @@ function loadState() {
       profiles: saved.profiles?.length ? saved.profiles : structuredClone(defaultState.profiles),
       pantry: Array.isArray(saved.pantry) ? saved.pantry : structuredClone(defaultState.pantry),
       shoppingDone: saved.shoppingDone ?? [],
+      sync: normalizeSyncSettings(saved.sync),
     });
   } catch {
     return normalizeState(structuredClone(defaultState));
@@ -1941,6 +2506,7 @@ function loadState() {
 function normalizeState(nextState) {
   nextState.language = SUPPORTED_LANGUAGES.includes(nextState.language) ? nextState.language : defaultState.language;
   nextState.activeFilter = normalizeFilterValue(nextState.activeFilter);
+  nextState.sync = normalizeSyncSettings(nextState.sync);
   const profiles = nextState.profiles?.length ? nextState.profiles : structuredClone(defaultState.profiles);
   const hasFamily = profiles.some((profile) => profile.id === "member-family");
   nextState.profiles = (hasFamily ? profiles : [defaultState.profiles[0], ...profiles]).map(normalizeProfile);
@@ -1951,6 +2517,15 @@ function normalizeState(nextState) {
   nextState.importText = nextState.importText || "";
   nextState.dishes = nextState.dishes.map(normalizeDish);
   return nextState;
+}
+
+function normalizeSyncSettings(sync = {}) {
+  return {
+    supabaseUrl: sync.supabaseUrl || "",
+    anonKey: sync.anonKey || "",
+    email: sync.email || "",
+    lastSyncedAt: sync.lastSyncedAt || "",
+  };
 }
 
 function normalizeFilterValue(filter) {
@@ -1975,17 +2550,33 @@ function normalizeProfile(profile) {
 
 function normalizeDish(dish) {
   const wantedBy = Array.isArray(dish.wantedBy) ? dish.wantedBy : dish.wanted ? ["member-family"] : [];
+  const fallback = defaultState.dishes.find((item) => item.id === dish.id);
   return {
     id: dish.id,
-    name: dish.name,
-    category: dish.category || "Основное",
-    tags: Array.isArray(dish.tags) ? dish.tags : [],
-    ingredients: Array.isArray(dish.ingredients) ? dish.ingredients : [],
-    note: dish.note || "",
+    name: dish.name || fallback?.name || "",
+    category: dish.category || fallback?.category || "Основное",
+    tags: Array.isArray(dish.tags) ? dish.tags : fallback?.tags || [],
+    ingredients: Array.isArray(dish.ingredients) ? dish.ingredients : fallback?.ingredients || [],
+    note: dish.note || fallback?.note || "",
+    i18n: mergeDishI18n(fallback?.i18n, dish.i18n),
     lastCooked: dish.lastCooked || "",
     wanted: wantedBy.length > 0,
     wantedBy,
   };
+}
+
+function mergeDishI18n(fallback = {}, current = {}) {
+  return SUPPORTED_LANGUAGES.reduce((result, language) => {
+    const entry = current?.[language] || fallback?.[language];
+    if (!entry) return result;
+    result[language] = {
+      name: entry.name || "",
+      tags: Array.isArray(entry.tags) ? entry.tags : [],
+      ingredients: Array.isArray(entry.ingredients) ? entry.ingredients : [],
+      note: entry.note || "",
+    };
+    return result;
+  }, {});
 }
 
 function resetDemo() {
